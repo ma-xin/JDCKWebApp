@@ -12,12 +12,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.JDWeb"
         android:usesCleartextTraffic="true">
-        <activity android:name=".WebActivity"></activity>
-        <activity android:name=".TextActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".WebActivity"
+            android:exported="false"/>
+        <activity android:name=".TextActivity"
+            android:exported="false"/>
+        <activity android:name=".MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
