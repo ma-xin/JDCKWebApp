@@ -9,7 +9,7 @@
     - 解决android12安装出现-22问题
     - 脚本添加推送
 - 2022-4-19：
-    - 青龙脚本兼容版giteeCK.py ,已测试 2.8.0 、2.11.2
+    -  **青龙脚本兼容版**  [giteeCK.py](https://gitee.com/maxinDev/jdck-web-app/blob/master/temp/giteeCK.py) ,已测试 2.8.0 、2.11.2
 
 
 #### 后续的一些想法：
