@@ -18,14 +18,6 @@ stream.setFormatter(logFormat)
 logger.addHandler(stream)
 
 
-# 引入配置文件
-try:
-    from giteeCKConfig import GiteeConfig,QLConfig
-except Exception as error:
-    logger.info('缺少配置文件【giteeCKConfig.py】')
-    logger.info(f'失败原因:{error}')
-    exit()
-
 #gitEE Token令牌
 ACCESS_TOKE = 'xxxxxxxxxxxxxxxx',
 #gitEE owner
