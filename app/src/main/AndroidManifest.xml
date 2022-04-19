@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mxin.jdweb">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -12,8 +13,23 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.JDWeb"
         android:usesCleartextTraffic="true">
+
         <activity android:name=".WebActivity"
-            android:exported="false"/>
+            android:exported="false"
+            >
+        </activity>
+        <activity android:name=".WebActivity2"
+            android:exported="true"
+            >
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="googlechrome"/>
+                <data android:scheme="http"/>
+                <data android:scheme="https"/>
+            </intent-filter>
+        </activity>
         <activity android:name=".TextActivity"
             android:exported="false"/>
         <activity android:name=".MainActivity"
@@ -23,6 +39,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
     </application>
 
 </manifest>

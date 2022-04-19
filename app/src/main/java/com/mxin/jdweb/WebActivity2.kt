@@ -19,22 +19,56 @@ import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
 
-class WebActivity : AppCompatActivity() {
+class WebActivity2 : AppCompatActivity() {
     private lateinit var webView: WebView
-    private val TAG = "JDWeb"
+    private val TAG = "JDWeb2"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web)
         initView()
+        initData()
+    }
+
+    private fun initData() {
+        val uri = intent.data
+        if (uri != null) {
+            // 完整的url信息
+            val totalUrl = uri.toString();
+            Log.i(TAG, "完整url: " + totalUrl);
+            // scheme 协议
+            val scheme = uri.getScheme();
+            Log.i(TAG, "scheme: " + scheme);
+            // host 主机
+            val host = uri.getHost();
+            Log.i(TAG, "host: " + host);
+            //port 端口
+            val port = uri.getPort();
+            Log.i(TAG, "port: " + port);
+            // 访问路径
+            val path = uri.getPath();
+            Log.i(TAG, "path: " + path);
+            // 获取所有参数
+            val query = uri.getQuery();
+            Log.i(TAG, "query: " + query);
+            //获取指定参数值
+            val device = uri.getQueryParameter("device");
+            Log.i(TAG, "device: " + device);
+            val tap = uri.getQueryParameter("tap");
+            Log.i(TAG, "tap: " + tap);
+            //为了方便的获取整个链接
+            val url = uri.toString().replace("jdckweb://","").split("\\?")[0];
+            Log.i(TAG, "url: " + url);
+        }
     }
 
     private fun initView() {
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
+        toolbar.title = "JDCOOKIE2"
         toolbar.setNavigationIcon(R.drawable.ic_baseline_close_24)
         toolbar.setNavigationOnClickListener {
-            if (webView.canGoBack()) {
+            if(webView.canGoBack()){
                 webView.goBack()
             }
         }
@@ -43,7 +77,7 @@ class WebActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true)
         }
-        webView.webChromeClient = object : WebChromeClient() {
+        webView.webChromeClient = object: WebChromeClient(){
 
             override fun onJsAlert(
                     view: WebView?,
@@ -56,21 +90,11 @@ class WebActivity : AppCompatActivity() {
 
         }
 
-        webView.webViewClient = object : WebViewClient() {
+        webView.webViewClient = object : WebViewClient(){
             override fun shouldOverrideUrlLoading(
                     view: WebView?,
                     request: WebResourceRequest?
             ): Boolean {
-                var url = request?.url?.toString() ?: ""
-                Log.d(TAG, "shouldOverrideUrlLoading : $url")
-                if (url.startsWith("wtloginmqq://ptlogin/qlogin")) {
-                    try {
-                        startActivity(Intent.parseUri(url, Intent.URI_INTENT_SCHEME))
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                    return true
-                }
                 return super.shouldOverrideUrlLoading(view, request)
             }
 
@@ -90,20 +114,20 @@ class WebActivity : AppCompatActivity() {
 
         var webSetting = webView.settings
         webSetting.javaScriptEnabled = true
-        webSetting.useWideViewPort = true
+        webSetting.useWideViewPort =true
         webSetting.loadWithOverviewMode = true
 //        webSetting.cacheMode =  WebSettings.LOAD_NO_CACHE
 //        webSetting.databaseEnabled = true
 //        webSetting.domStorageEnabled = false
 
-        webView.loadUrl("https://m.jd.com")
+        webView.loadUrl(intent.data.toString())
 
         AlertDialog.Builder(this)
-                .setTitle("温馨提示")
-                .setMessage("登录成功后，请点击右上角的上传图标，上传登录账户的cookie凭证！")
-                .setPositiveButton("知道了") { dialog, _ ->
-                    dialog.dismiss()
-                }.create().show()
+            .setTitle("温馨提示")
+            .setMessage("登录成功后，请点击右上角的上传图标，上传登录账户的cookie凭证！")
+            .setPositiveButton("知道了"){ dialog, _ ->
+                dialog.dismiss()
+            }.create().show()
 
     }
 
@@ -115,48 +139,48 @@ class WebActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.item_acion) {
+        if(item.itemId == R.id.item_acion){
             handleCookie(getWebCookie())
         }
         return super.onOptionsItemSelected(item)
     }
 
-    fun getWebCookie(): String {
+    fun getWebCookie():String{
         CookieManager.getInstance().run {
             val cookie = getCookie("https://home.m.jd.com/")
             Log.d(TAG, "cookie : $cookie")
-            return cookie
+           return cookie
         }
     }
 
     //获取cookie中的pt_key 和 pt_pin
-    private fun handleCookie(cookie: String) {
+    private fun handleCookie(cookie: String){
         val cookieValues = cookie.split(";")
         var result = ""
         cookieValues.forEach {
             val value = it.trim()
-            if (value.startsWith("pt_key=") || value.startsWith("pt_pin=")) {
-                result += "$value;"
+            if(value.startsWith("pt_key=") || value.startsWith("pt_pin=")){
+                result+= "$value;"
             }
         }
-        if (TextUtils.isEmpty(result)) {
+        if(TextUtils.isEmpty(result)){
             AlertDialog.Builder(this)
-                    .setMessage("没有获取到cookie的pt_key和pt_pin，请确认登录后重试！")
-                    .setPositiveButton("知道了") { dialog, _ ->
-                        dialog.dismiss()
-                    }.setNegativeButton("查看cookie") { dialog, _ ->
-                        startActivity(Intent(this, TextActivity::class.java).putExtra("content", cookie))
-                    }.create().show()
-        } else {
+                .setMessage("没有获取到cookie的pt_key和pt_pin，请确认登录后重试！")
+                .setPositiveButton("知道了"){ dialog, _ ->
+                    dialog.dismiss()
+                }.setNegativeButton("查看cookie"){ dialog, _ ->
+                    startActivity(Intent(this, TextActivity::class.java).putExtra("content", cookie))
+                }.create().show()
+        }else{
             //将cookie提交到服务器
             submitGiteeIssueComment(result)
         }
     }
 
-    private val loadDialog: LoadDialog by lazy { LoadDialog(this) }
+    private val loadDialog : LoadDialog by lazy { LoadDialog(this) }
 
 
-    private fun submitGiteeIssueComment(cookie: String) {
+    private fun submitGiteeIssueComment(cookie: String){
         var url = "https://gitee.com/api/v5/repos/{owner}/{repo}/issues/{number}/comments"
         val access_token = BuildConfig.gitee_token
         val owner = BuildConfig.gitee_owner
@@ -169,7 +193,7 @@ class WebActivity : AppCompatActivity() {
             override fun onFailure(call: Call?, e: IOException?) {
                 webView.post {
                     loadDialog.dismiss()
-                    AlertDialog.Builder(this@WebActivity)
+                    AlertDialog.Builder(this@WebActivity2)
                             .setTitle("cookie提交异常！")
                             .setPositiveButton("关闭") { dialog, _ ->
                                 dialog.dismiss()
@@ -186,14 +210,14 @@ class WebActivity : AppCompatActivity() {
                         val id = json.opt("id")
                         val body = json.opt("body")
                         if (id != null && body != null) {
-                            AlertDialog.Builder(this@WebActivity)
+                            AlertDialog.Builder(this@WebActivity2)
                                     .setTitle("cookie提交成功！")
                                     .setMessage("请勿切换账号或点击设置中的退出登录，否则会导致当前cookie失效\nid:$id \nbody:$body")
                                     .setPositiveButton("关闭") { dialog, _ ->
                                         dialog.dismiss()
                                     }.create().show()
                         } else {
-                            AlertDialog.Builder(this@WebActivity)
+                            AlertDialog.Builder(this@WebActivity2)
                                     .setTitle("cookie提交失败！")
                                     .setMessage("$responseBody")
                                     .setPositiveButton("关闭") { dialog, _ ->
@@ -201,7 +225,7 @@ class WebActivity : AppCompatActivity() {
                                     }.create().show()
                         }
                     } catch (e: Exception) {
-                        AlertDialog.Builder(this@WebActivity)
+                        AlertDialog.Builder(this@WebActivity2)
                                 .setTitle("cookie提交异常！")
                                 .setMessage("${e.message}")
                                 .setPositiveButton("关闭") { dialog, _ ->
@@ -211,6 +235,7 @@ class WebActivity : AppCompatActivity() {
                 }
             }
         })
+
 
 
     }
