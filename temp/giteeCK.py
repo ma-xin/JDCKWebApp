@@ -27,21 +27,21 @@ except Exception as error:
     exit()
 
 #gitEE Token令牌
-ACCESS_TOKE = GiteeConfig['ACCESS_TOKE']
+ACCESS_TOKE = 'xxxxxxxxxxxxxxxx',
 #gitEE owner
-OWNER = GiteeConfig['OWNER']
+OWNER = 'xxxxxx',
 #gitEE repo
-REPO = GiteeConfig['REPO']
+REPO = 'xxxxxx',
 #gitEE issue number
-NUMBER = GiteeConfig['NUMBER']
+NUMBER = 'xxxxxx',
 
 #青龙登录账号
-QL_Login_name = QLConfig['QL_Login_name']
+QL_Login_name = 'admin',
 #青龙登录密码
-QL_Login_password = QLConfig['QL_Login_password']
+QL_Login_password = 'admin',
 
 # 127.0.0.1有的环境出现无法访问，最好还是改成本地ip
-URL_QL = QLConfig['URL_QL_domain']
+URL_QL = 'http://192.168.0.155:5700/api/',
 
 #登录接口
 URL_QL_Login = URL_QL+'login?t={}'
