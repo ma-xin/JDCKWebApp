@@ -19,21 +19,21 @@ logger.addHandler(stream)
 
 
 #gitEE Token令牌
-ACCESS_TOKE = 'xxxxxxxxxxxxxxxx',
+ACCESS_TOKE = 'xxxxxxxxxxxxxxxx'
 #gitEE owner
-OWNER = 'xxxxxx',
+OWNER = 'xxxxxx'
 #gitEE repo
-REPO = 'xxxxxx',
+REPO = 'xxxxxx'
 #gitEE issue number
-NUMBER = 'xxxxxx',
+NUMBER = 'xxxxxx'
 
 #青龙登录账号
-QL_Login_name = 'admin',
+QL_Login_name = 'admin'
 #青龙登录密码
-QL_Login_password = 'admin',
+QL_Login_password = 'admin'
 
 # 127.0.0.1有的环境出现无法访问，最好还是改成本地ip
-URL_QL = 'http://192.168.0.155:5700/api/',
+URL_QL = 'http://192.168.0.155:5700/api/'
 
 #登录接口
 URL_QL_Login = URL_QL+'login?t={}'
