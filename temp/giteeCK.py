@@ -298,6 +298,7 @@ def getToken():
             token = getCacheToken()
         except Exception as error:
             logger.info('无法使用缓存auth.json获取token')
+            logger.info(error) 
     # 2. 使用登录接口获取token
     if(len(token)==0):
         token = loginQL()
@@ -353,8 +354,8 @@ def getQlVersion(token):
             logger.info(f"获取青龙版本接口错误{resp.status_code}") 
             return '0'
     except Exception as error:
-        logger.info(error)
         logger.info(f"获取青龙版本接口异常") 
+        logger.info(error)
         return '0'
 
 
@@ -385,7 +386,8 @@ if len(ql_token)>0:
         try:
             flag = handleEnv(ql_token, git_value)
         except Exception as error: 
-            logger.info(f"CK写入青龙异常。") 
+            logger.info(f"CK写入青龙异常。{error}") 
+            logger.info(error) 
         if(flag):
             gitee_id = value['id']
             logger.info('删除comment，id=【{}】'.format(gitee_id))
