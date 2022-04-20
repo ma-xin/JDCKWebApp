@@ -1,4 +1,4 @@
-package com.mxin.jdweb.util;
+package com.mxin.jdweb.utils;
 
 import android.app.Activity;
 import android.app.KeyguardManager;

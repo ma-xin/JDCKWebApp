@@ -19,7 +19,7 @@
 
    <Button
        android:id="@+id/btn_one"
-       android:layout_width="wrap_content"
+       android:layout_width="200dp"
        android:layout_height="60dp"
        android:layout_marginTop="30dp"
        android:text="打开京东网页版"
@@ -28,5 +28,16 @@
        app:layout_constraintEnd_toEndOf="parent"
        />
 
+    <Button
+        android:id="@+id/btn_ql"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="30dp"
+        android:text="青龙面板"
+        android:background="#4D9BEA"
+        app:layout_constraintTop_toBottomOf="@id/btn_one"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

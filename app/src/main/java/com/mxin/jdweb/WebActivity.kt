@@ -8,16 +8,28 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.webkit.*
+import android.widget.ArrayAdapter
+import android.widget.ListAdapter
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.lifecycleScope
+import com.mxin.jdweb.common.SPConstants
 import com.mxin.jdweb.network.OKHttpUtils
+import com.mxin.jdweb.network.ServiceGenerator
+import com.mxin.jdweb.network.api.EnvsApi
+import com.mxin.jdweb.network.data.EnvsData
+import com.mxin.jdweb.ui.ql.EnvsDetailActivity
+import com.mxin.jdweb.utils.TimeUtils
 import com.mxin.jdweb.widget.LoadDialog
+import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
+import java.text.SimpleDateFormat
 
 class WebActivity : AppCompatActivity() {
     private lateinit var webView: WebView
@@ -149,52 +161,86 @@ class WebActivity : AppCompatActivity() {
                     }.create().show()
         } else {
             //将cookie提交到服务器
-            submitGiteeIssueComment(result)
+            submit(result)
         }
     }
 
     private val loadDialog: LoadDialog by lazy { LoadDialog(this) }
 
 
+    private val spUtil by lazy { App.getInstance().spUtil }
+    private fun submit(cookie: String){
+        val ckServerList = spUtil.getString(SPConstants.CKServer,"GitEE").split("&")
+        AlertDialog.Builder(this)
+            .setTitle("请选择服务器")
+            .setAdapter(ArrayAdapter(this, android.R.layout.simple_list_item_single_choice, ckServerList)){ dialog , which->
+                when(ckServerList[which]){
+                    "GitEE"-> submitGiteeIssueComment(cookie)
+                    else -> submitQLServer(cookie)
+                }
+            }.create().show()
+    }
+
     private fun submitGiteeIssueComment(cookie: String) {
-        var url = "https://gitee.com/api/v5/repos/{owner}/{repo}/issues/{number}/comments"
         val access_token = BuildConfig.gitee_token
         val owner = BuildConfig.gitee_owner
         val repo = BuildConfig.gitee_repo
         val number = BuildConfig.gitee_issue
+        if(TextUtils.isEmpty(access_token) || TextUtils.isEmpty(owner) || TextUtils.isEmpty(repo) || TextUtils.isEmpty(number)){
+            AlertDialog.Builder(this)
+                .setMessage("没有获取到GitEE配置参数，请确认后重试！")
+                .setPositiveButton("知道了") { dialog, _ ->
+                    dialog.dismiss()
+                }.setNegativeButton("查看cookie") { dialog, _ ->
+                    startActivity(Intent(this, TextActivity::class.java).putExtra("content", cookie))
+                }.create().show()
+            return
+        }
+        var url = "https://gitee.com/api/v5/repos/{owner}/{repo}/issues/{number}/comments"
         url = url.replace("{owner}", owner).replace("{repo}", repo).replace("{number}", number)
         val params = mapOf("access_token" to access_token, "body" to cookie)
         loadDialog.show()
         OKHttpUtils.doPostRequest(url, params, object : Callback {
-            override fun onFailure(call: Call?, e: IOException?) {
+            override fun onFailure(call: Call, e: IOException) {
                 webView.post {
                     loadDialog.dismiss()
                     AlertDialog.Builder(this@WebActivity)
-                            .setTitle("cookie提交异常！")
+                            .setTitle("cookie提交GitEE异常！")
+                            .setMessage("${e.message}")
                             .setPositiveButton("关闭") { dialog, _ ->
                                 dialog.dismiss()
                             }.create().show()
                 }
             }
 
-            override fun onResponse(call: Call?, response: Response?) {
+            override fun onResponse(call: Call, response: Response) {
                 webView.post {
                     loadDialog.dismiss()
-                    val responseBody = response?.body()?.string()
+                    val responseBody = response.body?.string()
                     try {
+                        if(!response.isSuccessful){
+                            AlertDialog.Builder(this@WebActivity)
+                                .setTitle("cookie提交GitEE失败！")
+                                .setMessage("确认gitee配置参数和仓库Issue是否正常！\nresponse Code:${response.code}\n" +
+                                        "body:${responseBody}")
+                                .setPositiveButton("关闭") { dialog, _ ->
+                                    dialog.dismiss()
+                                }.create().show()
+                            return@post
+                        }
                         val json = JSONObject(responseBody)
                         val id = json.opt("id")
                         val body = json.opt("body")
                         if (id != null && body != null) {
                             AlertDialog.Builder(this@WebActivity)
-                                    .setTitle("cookie提交成功！")
+                                    .setTitle("cookie提交GitEE成功！")
                                     .setMessage("请勿切换账号或点击设置中的退出登录，否则会导致当前cookie失效\nid:$id \nbody:$body")
                                     .setPositiveButton("关闭") { dialog, _ ->
                                         dialog.dismiss()
                                     }.create().show()
                         } else {
                             AlertDialog.Builder(this@WebActivity)
-                                    .setTitle("cookie提交失败！")
+                                    .setTitle("cookie提交GitEE失败！")
                                     .setMessage("$responseBody")
                                     .setPositiveButton("关闭") { dialog, _ ->
                                         dialog.dismiss()
@@ -202,7 +248,7 @@ class WebActivity : AppCompatActivity() {
                         }
                     } catch (e: Exception) {
                         AlertDialog.Builder(this@WebActivity)
-                                .setTitle("cookie提交异常！")
+                                .setTitle("cookie提交GitEE异常！")
                                 .setMessage("${e.message}")
                                 .setPositiveButton("关闭") { dialog, _ ->
                                     dialog.dismiss()
@@ -211,8 +257,21 @@ class WebActivity : AppCompatActivity() {
                 }
             }
         })
+    }
 
-
+    private fun submitQLServer(cookie:String){
+        val env = EnvsData(-1L, cookie, "", 0, 0f, "JD_COOKIE", "", "","")
+        var pt_pin = ""
+        env.value?.split(";")?.forEach {
+            if(it.startsWith("pt_pin=")){
+                pt_pin = it
+                return@forEach
+            }
+        }
+        startActivity(Intent(this, EnvsDetailActivity::class.java)
+            .putExtra("env", env)
+            .putExtra("searchValue", pt_pin)
+        )
     }
 
 }

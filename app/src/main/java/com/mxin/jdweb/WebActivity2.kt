@@ -190,7 +190,7 @@ class WebActivity2 : AppCompatActivity() {
         val params = mapOf("access_token" to access_token, "body" to cookie)
         loadDialog.show()
         OKHttpUtils.doPostRequest(url, params, object : Callback {
-            override fun onFailure(call: Call?, e: IOException?) {
+            override fun onFailure(call: Call, e: IOException) {
                 webView.post {
                     loadDialog.dismiss()
                     AlertDialog.Builder(this@WebActivity2)
@@ -201,10 +201,10 @@ class WebActivity2 : AppCompatActivity() {
                 }
             }
 
-            override fun onResponse(call: Call?, response: Response?) {
+            override fun onResponse(call: Call, response: Response) {
                 webView.post {
                     loadDialog.dismiss()
-                    val responseBody = response?.body()?.string()
+                    val responseBody = response.body?.string()
                     try {
                         val json = JSONObject(responseBody)
                         val id = json.opt("id")

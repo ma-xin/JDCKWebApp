@@ -1,4 +1,4 @@
-package com.mxin.jdweb.util;
+package com.mxin.jdweb.utils;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -10,8 +10,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-
-import androidx.core.content.FileProvider;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -111,7 +109,7 @@ public final class Utils {
     private static Application getApplicationByReflect() {
         try {
             @SuppressLint("PrivateApi")
-            Class<?> activityThread = Class.forName("android.app.ActivityThread");
+			Class<?> activityThread = Class.forName("android.app.ActivityThread");
             Object thread = activityThread.getMethod("currentActivityThread").invoke(null);
             Object app = activityThread.getMethod("getApplication").invoke(thread);
             if (app == null) {
@@ -144,6 +142,15 @@ public final class Utils {
             return topActivity == null ? Utils.getApp() : topActivity;
         } else {
             return Utils.getApp();
+        }
+    }
+
+    public static Activity getTopActivity(){
+        if (isAppForeground()) {
+            Activity topActivity = ACTIVITY_LIFECYCLE.getTopActivity();
+            return topActivity;
+        } else {
+            return null;
         }
     }
 
@@ -230,8 +237,8 @@ public final class Utils {
 
     static class ActivityLifecycleImpl implements ActivityLifecycleCallbacks {
 
-        final LinkedList<Activity> mActivityList         = new LinkedList<>();
-        final Map<Object, OnAppStatusChangedListener> mStatusListenerMap    = new HashMap<>();
+        final LinkedList<Activity> mActivityList = new LinkedList<>();
+        final Map<Object, OnAppStatusChangedListener> mStatusListenerMap = new HashMap<>();
         final Map<Activity, Set<OnActivityDestroyedListener>> mDestroyedListenerMap = new HashMap<>();
 
         private int     mForegroundCount = 0;
@@ -376,7 +383,7 @@ public final class Utils {
         private Activity getTopActivityByReflect() {
             try {
                 @SuppressLint("PrivateApi")
-                Class<?> activityThreadClass = Class.forName("android.app.ActivityThread");
+				Class<?> activityThreadClass = Class.forName("android.app.ActivityThread");
                 Object activityThread = activityThreadClass.getMethod("currentActivityThread").invoke(null);
                 Field activitiesField = activityThreadClass.getDeclaredField("mActivityList");
                 activitiesField.setAccessible(true);
@@ -426,20 +433,20 @@ public final class Utils {
                         declaredField.set(imm, null);
                     }
                 } catch (Throwable th) {
-                    th.printStackTrace();
+//                    th.printStackTrace();
                 }
             }
         }
     }
 
-    public static final class FileProvider4UtilCode extends FileProvider {
-
-        @Override
-        public boolean onCreate() {
-            Utils.init(getContext());
-            return true;
-        }
-    }
+//    public static final class FileProvider4UtilCode extends FileProvider {
+//
+//        @Override
+//        public boolean onCreate() {
+//            Utils.init(getContext());
+//            return true;
+//        }
+//    }
 
     ///////////////////////////////////////////////////////////////////////////
     // interface

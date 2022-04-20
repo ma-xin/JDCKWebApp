@@ -7,6 +7,7 @@
 
     <application
         android:allowBackup="true"
+        android:name=".App"
         android:icon="@mipmap/ic_launcher"
         android:label="${APP_NAME}"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -40,6 +41,14 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ui.ql.QLLoginActivity"
+            android:exported="false"/>
+        <activity android:name=".ui.ql.QlHomeActivity"
+            android:exported="false"/>
+        <activity android:name=".ui.ql.QlServerSettingActivity"
+            android:exported="false"/>
+        <activity android:name=".ui.ql.EnvsDetailActivity"
+            android:exported="false"/>
 
     </application>
 
