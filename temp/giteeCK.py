@@ -194,22 +194,24 @@ def handleEnv(token, cookie):
             if(len(array)==0):
                 logger.info("没有查询到CK【{}】，开始添加 ".format(searchValue)) 
                 # 添加变量
-                flag = saveEnv(token, '', cookie, searchValue)  
+                flag = saveEnv(token, '', cookie, searchValue, True)  
             else:
                 logger.info("查询到{}个CK【{}】，开始修改 ".format(len(array), searchValue)) 
                 _value = array[0]['value']
                 _status = array[0]['status']
+                # 2.11.0 字段 _id 改成 id
+                _id = array[0]['_id' if qlVersion<'2.11.0' else 'id']  
+                    # 高版本remarks可为null
+                _remarks = array[0].get('remarks','')
+                logger.info(f'id:{_id}')
                 if(_value == cookie):
                     statusName = '启用' if _status == 0 else '禁用'
                     notify('CK【{}】是最新值，不用修改，CK状态【{}】'.format(searchValue, statusName))
                     flag = True
                 else:
                     # 修改变量   
-                    # 2.11.0 字段 _id 改成 id
-                    _id = array[0]['_id' if qlVersion<'2.11.0' else 'id']  
-                    # 高版本remarks可为null
-                    _remarks = array[0].get('remarks','')
-                    flag = saveEnv(token, _id, cookie, _remarks)
+                   
+                    flag = saveEnv(token, _id, cookie, _remarks, False)
                 if(flag and _status != 0):
                     #解除cookie禁用
                     flag = enableEnv(token, _id) 
@@ -221,7 +223,7 @@ def handleEnv(token, cookie):
 
 
 #添加/修改变量
-def saveEnv(token, id, cookie, remarks):
+def saveEnv(token, id, cookie, remarks, isAdd):
     url = URL_QL_Env.format(getTimestamp())
      #添加请求头
     headers = {
@@ -235,7 +237,7 @@ def saveEnv(token, id, cookie, remarks):
           "value": cookie,
           "remarks": remarks 
         }
-    if len(id)>0:
+    if(isAdd):
         # 2.11.0 字段 _id 改成 id
         payload['_id' if qlVersion<'2.11.0' else 'id'] = id
         resp = requests.put(url, data = payload, headers=headers)
@@ -254,10 +256,10 @@ def saveEnv(token, id, cookie, remarks):
         content = resp.content.decode('utf-8')
         result = json.loads(content)
         if(result['code'] == 200):
-            notify(f"成功->{'添加' if len(id)==0 else '修改'}CK:{rs[len(rs)-1]}")
+            notify(f"成功->{'添加' if isAdd else '修改'}CK:{rs[len(rs)-1]}")
             return True
         else:
-            notify(f"失败->{'添加' if len(id)==0 else '修改'}CK:{rs[len(rs)-1]}")
+            notify(f"失败->{'添加' if isAdd else '修改'}CK:{rs[len(rs)-1]}")
             logger.info('保存变量失败【{}】'.format(content))
             return False
     else:
