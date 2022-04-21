@@ -5,9 +5,10 @@ import urllib
 import os
 import datetime
 import logging
-
+ 
 #gitEE Token令牌
 ACCESS_TOKE = 'xxxxxxxxxxxxxxxxx'
+
 #gitEE owner
 OWNER = 'xxxx'
 #gitEE repo
