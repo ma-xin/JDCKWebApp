@@ -47,7 +47,12 @@ android {
             signingConfig signingConfigs.release
 
         }
+        userp {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
 
+        }
         // 第一个马甲包
         majiabaoOne.initWith(buildTypes.release) // 以release的配置来初始化马甲包配置
         majiabaoOne {
