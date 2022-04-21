@@ -6,7 +6,11 @@ import os
 import datetime
 import logging
 
-
+#
+# 改了好几次了，忘记这是第几版， 重头开始记吧！
+#
+#   第A1版
+#
 # 日志模块
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -237,7 +241,7 @@ def saveEnv(token, id, cookie, remarks, isAdd):
           "value": cookie,
           "remarks": remarks 
         }
-    if(isAdd):
+    if not (isAdd):
         # 2.11.0 字段 _id 改成 id
         payload['_id' if qlVersion<'2.11.0' else 'id'] = id
         resp = requests.put(url, data = payload, headers=headers)
