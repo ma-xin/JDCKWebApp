@@ -47,7 +47,6 @@ class QLLoginActivity: BaseActivity() {
 
     }
 
-
     private fun initView() {
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -75,7 +74,7 @@ class QLLoginActivity: BaseActivity() {
         }
 
         findViewById<View>(R.id.tv_setting).setOnClickListener {
-            startActivity(Intent(this, QlServerSettingActivity::class.java))
+            startActivity(Intent(this, QlServerSettingActivity::class.java).putExtra("title","配置青龙服务器"))
         }
 
     }
@@ -120,7 +119,6 @@ class QLLoginActivity: BaseActivity() {
         }
     }
 
-
     private fun login(){
         val username = etUserName.text.toString()
         val password = etPassWord.text.toString()
@@ -147,8 +145,9 @@ class QLLoginActivity: BaseActivity() {
                 val resp = ServiceGenerator.createService(LoginApi::class.java).login(params.toString().toRequestBody("application/json; charset=UTF-8".toMediaType()))
                 if(resp.code == 200){
                     resp.data?.token?.let {
-                        cacheToken(it)
+                        cacheToken(it, tokenApi = "api")
                         openNextActivity()
+                        return@launch
                     }
                 }else if(!TextUtils.isEmpty(resp.message)){
                     Toast.makeText(this@QLLoginActivity, resp.message, Toast.LENGTH_SHORT).show()
@@ -166,13 +165,13 @@ class QLLoginActivity: BaseActivity() {
     //发起应用授权获取token
     private fun startAuth(){
         lifecycleScope.launch {
-            showLoadingDialog("正在获取应用授权", false)
+            showLoadingDialog("正在获取应用授权...", false)
             try{
                 val resp = ServiceGenerator.createService(LoginApi::class.java).authToken(clientId!!, clientSecret!!)
                 if(resp.code == 200){
                     resp.data?.token?.let {
                         val tokenType = resp.data.token_type
-                        cacheToken(it, tokenType, resp.data.expiration)
+                        cacheToken(it, tokenType, resp.data.expiration, "open")
                         openNextActivity()
                         return@launch
                     }
@@ -186,17 +185,13 @@ class QLLoginActivity: BaseActivity() {
                 e.printStackTrace()
                 Toast.makeText(this@QLLoginActivity, "授权失败！${e.message}" , Toast.LENGTH_SHORT).show()
             }
+            dismissLoadingDialog()
         }
-        dismissLoadingDialog()
     }
 
     //缓存token
-    private fun cacheToken(token:String, tokenType:String = "Bearer", expiration:Long = -1){
-        //授权成功, 获取token
-        spUtil.put(SPConstants.QL_token, token)
-        spUtil.put(SPConstants.QL_token_type, tokenType)
-        //token有效期
-        spUtil.put(SPConstants.QL_token_expiration, if(expiration==-1L) expiration else {System.currentTimeMillis()+expiration})
+    private fun cacheToken(token:String, tokenType:String = "Bearer", expiration:Long = -1, tokenApi:String = "api"){
+        App.getInstance().refreshToken(token, tokenType, expiration, tokenApi)
     }
 
     //验证缓存的token是否失效
@@ -205,18 +200,21 @@ class QLLoginActivity: BaseActivity() {
         if(TextUtils.isEmpty(token)){
             return
         }
-        showLoadingDialog("正在检查用户是否过期！")
+        showLoadingDialog("正在连接...")
         lifecycleScope.launch {
-            val resp = ServiceGenerator.createService(EnvsApi::class.java).list()
-            if(resp.code == 200){
-                openNextActivity()
-            }else{
-                spUtil.remove(SPConstants.QL_token)
-                spUtil.remove(SPConstants.QL_token_type)
-                spUtil.remove(SPConstants.QL_token_expiration)
+            try{
+                val resp = ServiceGenerator.createService(EnvsApi::class.java).list()
+                if(resp.code == 200){
+                    openNextActivity()
+                    return@launch
+                }else{
+                    App.getInstance().clearToken()
+                }
+            }catch (e:Exception){
+                e.printStackTrace()
             }
+            dismissLoadingDialog()
         }
-        dismissLoadingDialog()
     }
 
 
@@ -225,6 +223,7 @@ class QLLoginActivity: BaseActivity() {
         if(!expire){
             startActivity(Intent(this@QLLoginActivity, QlHomeActivity::class.java))
         }
+        dismissLoadingDialog()
         finish()
     }
 }

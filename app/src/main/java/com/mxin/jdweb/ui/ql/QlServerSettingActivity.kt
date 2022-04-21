@@ -1,5 +1,6 @@
 package com.mxin.jdweb.ui.ql
 
+import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
@@ -20,6 +21,7 @@ import com.mxin.jdweb.common.SPConstants
 import com.mxin.jdweb.network.ServiceGenerator
 import com.mxin.jdweb.utils.SpannableUtil
 import com.mxin.jdweb.utils.kt.dp2px
+import com.mxin.jdweb.utils.kt.positiveBtn
 import com.mxin.jdweb.utils.kt.toColorInt
 
 open class QlServerSettingActivity: BaseActivity() {
@@ -34,7 +36,7 @@ open class QlServerSettingActivity: BaseActivity() {
     }
 
     override fun showLoadingView(): View? {
-        return null
+        return findViewById(R.id.contentLayout)
     }
 
     override fun onLoadRetry() {
@@ -43,7 +45,7 @@ open class QlServerSettingActivity: BaseActivity() {
     open fun initView() {
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-        toolbar.title = "配置服务器"
+        toolbar.title = intent.getStringExtra("title")
         toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_ios_24)
         toolbar.setNavigationOnClickListener {
             finish()
@@ -51,22 +53,45 @@ open class QlServerSettingActivity: BaseActivity() {
 
         val contentLayout = findViewById<ViewGroup>(R.id.contentLayout)
 
+        initSettingView(contentLayout, modelList)
+
+        findViewById<Button>(R.id.btn_save).setOnClickListener {
+            try {
+                var saveState = true
+                modelList.forEach {
+                    try{
+                        it.saveCall.invoke(it.value)
+                    }catch (e:Exception){
+                        saveState = false
+                        AlertDialog.Builder(this)
+                            .setTitle("保存${it.name.split(",")[0]}失败")
+                            .setMessage(e.message)
+                            .positiveBtn("确定"){dialog, which ->
+                                dialog.dismiss()
+                            }.create().show()
+                    }
+                }
+                if(saveState){
+                    Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+            }catch (e: Exception){
+                Toast.makeText(this, "保存失败！", Toast.LENGTH_SHORT).show()
+            }
+
+        }
+    }
+
+    open fun initSettingView(contentLayout:ViewGroup, modelList: MutableList<FormEditModel>){
+
         val ql_domain = spUtil.getString(SPConstants.QL_domain, ServiceGenerator.domain_default)
-        val domainMode = FormEditModel("服务器IP，示例: ${ServiceGenerator.domain_default}", ql_domain)
+        val domainMode = FormEditModel("服务器IP,示例: ${ServiceGenerator.domain_default}", ql_domain)
             .save { spUtil.put(SPConstants.QL_domain, it) }
         modelList.add(domainMode)
         contentLayout.addView(initFormEditView(domainMode))
 
         contentLayout.addView(getSpaceView(20.dp2px(), R.color.divide_color.toColorInt()))
-        val textView = TextView(this)
-        textView.layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        textView.setPadding(8.dp2px())
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
-        textView.setTextColor(R.color.red.toColorInt())
-        textView.setText("client_id、client_secret在系统设置->应用设置中添加\n权限勾选环境变量、系统信息")
+        val textView = initFormTextView("client_id、client_secret在系统设置->应用设置中添加\n权限勾选环境变量、系统信息", R.color.red.toColorInt(), 13f)
         contentLayout.addView(textView)
         contentLayout.addView(getSpaceView(10.dp2px(), android.R.color.transparent.toColorInt()))
 
@@ -82,20 +107,14 @@ open class QlServerSettingActivity: BaseActivity() {
         modelList.add(clientSecretModel)
         contentLayout.addView(initFormEditView(clientSecretModel))
 
-        findViewById<Button>(R.id.btn_save).setOnClickListener {
-            try {
-                modelList.forEach {
-                    it.saveCall.invoke(it.value)
-                }
-                Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show()
-            }catch (e: Exception){
-                Toast.makeText(this, "保存失败！", Toast.LENGTH_SHORT).show()
-            }
-
-        }
+        val version = spUtil.getString(SPConstants.QL_version)
+        val versionModel = FormEditModel("青龙版本号", version)
+            .save { spUtil.put(SPConstants.QL_version, it) }
+        modelList.add(versionModel)
+        contentLayout.addView(initFormEditView(versionModel))
     }
 
-    private fun getSpaceView(height: Int, color: Int):View{
+    fun getSpaceView(height: Int, color: Int):View{
         val view = View(this)
         view.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
         view.setBackgroundColor(color)
@@ -115,7 +134,9 @@ open class QlServerSettingActivity: BaseActivity() {
         if(onlyRead){
             etValue.isFocusable = false
             etValue.isFocusableInTouchMode = false
+            etValue.isLongClickable = false
         }
+
         if(require){
             tvName.text = SpannableUtil.formatForeground("*${model.name}", 0, 1, Color.RED)
         }else{
@@ -128,6 +149,18 @@ open class QlServerSettingActivity: BaseActivity() {
         return view
     }
 
+    fun initFormTextView(text:String, textColor:Int, textSize:Float):TextView{
+        val textView = TextView(this)
+        textView.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        textView.setPadding(8.dp2px())
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
+        textView.setTextColor(textColor)
+        textView.setText(text)
+        return textView
+    }
 
 }
 

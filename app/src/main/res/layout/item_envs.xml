@@ -12,7 +12,7 @@
         android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingVertical="12dp"
+        android:paddingVertical="6dp"
         android:paddingHorizontal="6dp">
 
 
@@ -26,11 +26,17 @@
             app:layout_constraintEnd_toStartOf="@id/tv_time"
             app:layout_constraintWidth_default="wrap"
             app:layout_constraintHorizontal_chainStyle="spread_inside"
-            android:background="@drawable/shape_label_bg"
-            android:paddingVertical="2dp"
-            android:paddingHorizontal="6dp"
             android:gravity="center"
             >
+
+            <View
+                android:id="@+id/iv_status"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:background="@drawable/shape_label_status_enable"
+                android:layout_marginEnd="6dp"
+                />
+
 
             <TextView
                 android:id="@+id/tv_name"
@@ -39,18 +45,14 @@
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:gravity="start"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textColor="@color/white"
                 tools:text="JD_COOKIE"
+                android:background="@drawable/shape_label_bg"
+                android:paddingVertical="2dp"
+                android:paddingHorizontal="6dp"
                 />
 
-            <View
-                android:id="@+id/iv_status"
-                android:layout_width="10dp"
-                android:layout_height="10dp"
-                android:background="@drawable/shape_label_status_enable"
-                android:layout_marginStart="6dp"
-                />
 
         </LinearLayout>
 
@@ -59,7 +61,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:textColor="@color/textColor_777"
             android:ellipsize="end"
             android:singleLine="true"
@@ -75,10 +77,10 @@
             android:id="@+id/tv_remarks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="4dp"
             android:ellipsize="end"
             android:singleLine="true"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:textColor="@color/textColor"
             tools:text="备注字段123123i12io3u1o2u3io1u2io31o2i3uoi12u3io1u2io3u21ooi12u3oi12u31o2i3u"
             app:layout_constraintTop_toBottomOf="@id/layout_top"
@@ -88,7 +90,7 @@
             android:id="@+id/tv_value"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="2dp"
             android:textSize="13sp"
             android:textColor="@color/textColor_777"
             android:ellipsize="end"
@@ -110,9 +112,9 @@
             android:id="@+id/right_menu_edit"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:background="@color/green"
+            android:background="@color/btn_blue_normal"
             android:gravity="center"
-            android:paddingHorizontal="30dp"
+            android:paddingHorizontal="20dp"
             android:text="编辑"
             android:textSize="14sp"
             android:textColor="@color/white"/>
@@ -121,9 +123,9 @@
             android:id="@+id/right_menu_enable"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:background="@color/btn_blue_normal"
+            android:background="@color/green"
             android:gravity="center"
-            android:paddingHorizontal="30dp"
+            android:paddingHorizontal="20dp"
             android:text="启用"
             android:textSize="14sp"
             android:textColor="@color/white"/>
@@ -134,7 +136,7 @@
             android:layout_height="match_parent"
             android:background="@color/red"
             android:gravity="center"
-            android:paddingHorizontal="30dp"
+            android:paddingHorizontal="20dp"
             android:text="删除"
             android:textSize="14sp"
             android:textColor="@color/white"/>

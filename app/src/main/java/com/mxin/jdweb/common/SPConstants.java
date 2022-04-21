@@ -2,7 +2,18 @@ package com.mxin.jdweb.common;
 
 public class SPConstants {
 
-	public static final String CKServer = "ck_server";
+	//webView 默认打开地址
+	public static final String Web_home_url = "web_home_url";
+
+	//webView 抓取cookie的域名
+	public static final String Web_cookie_domain = "web_cookie_domain";
+
+	//GitEE配置参数
+	public static final String GitEE_Token = "gitEE_token";
+	public static final String GitEE_repo_url = "gitEE_repo_url";
+	public static final String GitEE_owner = "gitEE_owner";
+	public static final String GitEE_repo = "gitEE_repo";
+	public static final String GitEE_number = "gitEE_number";
 
 	public static final String QL_domain = "domain";
 
@@ -20,6 +31,9 @@ public class SPConstants {
 
 	public static final String QL_token_expiration = "token_expiration";
 
+	public static final String QL_token_api = "QL_token_api";
+
+	public static final String QL_version = "ql_version";
 
 
 }

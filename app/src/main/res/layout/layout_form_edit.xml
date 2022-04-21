@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:paddingHorizontal="8dp"
-    android:paddingVertical="12dp">
+    android:paddingVertical="6dp"
+    android:background="@color/white">
 
     <TextView
         android:id="@+id/tv_name"
@@ -20,10 +21,10 @@
     <EditText
         android:id="@+id/et_value"
         android:layout_width="match_parent"
-        android:layout_height="46dp"
+        android:layout_height="wrap_content"
+        android:minHeight="46dp"
         android:lines="1"
         android:background="@drawable/shape_edit_border"
-        android:paddingVertical="4dp"
         android:paddingHorizontal="12dp"
         android:textColor="@color/textColor"
         android:textSize="14sp"

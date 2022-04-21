@@ -8,8 +8,7 @@ import retrofit2.http.*
 
 interface SystemApi {
 
-   //获取系统版本号
-    @FormUrlEncoded
+    //获取系统版本号
     @GET("api/system")
     suspend fun version(): BaseResponse<VersionData?>
 

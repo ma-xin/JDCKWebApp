@@ -53,7 +53,7 @@ public class ResponseErrorListenerImpl {
             //java.net.ConnectException: Failed to connect to /161.184.160.158:6877
         } else if (t instanceof HttpException) {
             HttpException httpException = (HttpException) t;
-            msg = convertStatusCode(httpException.code(), httpException.message());
+            msg = convertStatusCode(httpException.code(), httpException.message(), "HttpException");
         } else if (t instanceof JsonParseException || t instanceof ParseException ||
 //                || t instanceof com.alibaba.fastjson.JSONException
                 t instanceof JSONException  || t instanceof JsonIOException) {
@@ -63,18 +63,18 @@ public class ResponseErrorListenerImpl {
         return msg;
     }
 
-    public static String convertStatusCode(int code, String defaultMessage) {
+    public static String convertStatusCode(int code, String errorMessage, String defaultMessage) {
         String msg;
         if (code == 500) {
-            msg = "服务器发生错误了~500";
+            msg = "服务器发生错误了~500 "+errorMessage;
         } else if (code == 404) {
-            msg = "请求无法访问 ~404";
+            msg = "请求无法访问 ~404 "+errorMessage;
         } else if (code == 403) {
-            msg = "请求被服务器拒绝~403";
+            msg = "请求被服务器拒绝~403 "+errorMessage;
         } else if (code == 307) {
-            msg = "请求被重定向到其他页面~307";
+            msg = "请求被重定向到其他页面~307 "+errorMessage;
         } else {
-            msg = defaultMessage+"~"+code;
+            msg = defaultMessage+"~"+code+" "+errorMessage;
         }
         return msg;
     }

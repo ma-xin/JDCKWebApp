@@ -13,7 +13,7 @@
         style="@style/AVLoadingIndicatorView.Large"
         android:visibility="visible"
         app:indicatorName="BallPulseIndicator"
-        app:indicatorColor="@color/colorPrimary"
+        app:indicatorColor="?attr/colorPrimary"
         />
 
 </LinearLayout>

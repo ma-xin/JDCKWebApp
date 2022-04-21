@@ -1,5 +1,7 @@
 package com.mxin.jdweb.network;
 
+import android.text.TextUtils;
+
 import com.mxin.jdweb.App;
 import com.mxin.jdweb.BuildConfig;
 import com.mxin.jdweb.common.SPConstants;
@@ -31,47 +33,13 @@ public class ServiceGenerator {
     public static SPUtils spUtils = App.getInstance().getSpUtil();
 
     protected static OkHttpClient.Builder httpClient = builderOkHttpClient();
+    protected static Retrofit retrofit;
 
     protected static OkHttpClient.Builder builderOkHttpClient() {
-        return new OkHttpClient.Builder()
+        OkHttpClient.Builder httpClient = new OkHttpClient.Builder()
                 .readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)//设置读取超时时间
                 .writeTimeout(WRIT_TIMEOUT, TimeUnit.SECONDS)//设置写的超时时间
                 .connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS);
-    }
-
-    private static Retrofit.Builder builder =
-            new Retrofit.Builder()
-                    .baseUrl(API_BASE_URL = spUtils.getString(SPConstants.QL_domain, domain_default)).addConverterFactory(GsonConverterFactory.create());
-
-    public static void reset(String domain) {
-        App.getInstance().getSpUtil().put(SPConstants.QL_domain, domain);
-        API_BASE_URL = domain;
-        builder =
-                new Retrofit.Builder()
-                        .baseUrl(API_BASE_URL).addConverterFactory(GsonConverterFactory.create());
-    }
-
-
-    public static <S> S createService(Class<S> serviceClass) {
-        return createService(serviceClass, null);
-    }
-
-    public static <S> S createService(Class<S> serviceClass, final String authToken) {
-        if (authToken != null) {
-            httpClient.addInterceptor(new Interceptor() {
-                @Override
-                public Response intercept(Chain chain) throws IOException {
-                    Request original = chain.request();
-
-                    // Request customization: add request headers
-                    Request.Builder requestBuilder = original.newBuilder()
-                            .method(original.method(), original.body());
-
-                    Request request = requestBuilder.build();
-                    return chain.proceed(request);
-                }
-            });
-        }
 
         httpClient.addInterceptor(new CommonHeaderInterceptor());
         httpClient.addInterceptor(new RespErrorInterceptor());
@@ -80,8 +48,51 @@ public class ServiceGenerator {
         if (BuildConfig.DEBUG) {
             httpClient.addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY));
         }
+        return httpClient;
+    }
+
+    private static Retrofit.Builder builder =
+            new Retrofit.Builder()
+                    .baseUrl(API_BASE_URL = spUtils.getString(SPConstants.QL_domain, domain_default)).addConverterFactory(GsonConverterFactory.create());
+
+    public static void reset(String domain) {
+        SPUtils spUtil = App.getInstance().getSpUtil();
+        spUtil.put(SPConstants.QL_domain, domain);
+        API_BASE_URL = domain ;
+        builder =
+                new Retrofit.Builder()
+                        .baseUrl(API_BASE_URL).addConverterFactory(GsonConverterFactory.create());
         OkHttpClient client = httpClient.build();
-        Retrofit retrofit = builder.client(client).build();
+        retrofit = builder.client(client).build();
+    }
+
+
+    public static <S> S createService(Class<S> serviceClass) {
+        if(retrofit==null){
+            String domain = App.getInstance().getSpUtil().getString(SPConstants.QL_domain);
+            reset(domain);
+        }
+        return retrofit.create(serviceClass);
+//        return createService(serviceClass, null);
+    }
+
+    public static <S> S createService(Class<S> serviceClass, final String authToken) {
+//        if (authToken != null) {
+//            httpClient.addInterceptor(new Interceptor() {
+//                @Override
+//                public Response intercept(Chain chain) throws IOException {
+//                    Request original = chain.request();
+//
+//                    // Request customization: add request headers
+//                    Request.Builder requestBuilder = original.newBuilder()
+//                            .method(original.method(), original.body());
+//
+//                    Request request = requestBuilder.build();
+//                    return chain.proceed(request);
+//                }
+//            });
+//        }
+
         return retrofit.create(serviceClass);
     }
 

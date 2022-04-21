@@ -79,10 +79,10 @@ class EnvsFragment: BaseFragment() {
             val item = mAdapter.getItemOrNull(position)?:return@setOnItemChildClickListener
             when(view.id){
                 R.id.content ->{
-                    startActivity(Intent(context, EnvsDetailActivity::class.java).putExtra("id", item.getEId()))
+                    startActivity(EnvsDetailActivity.viewEnv(requireContext(), item))
                 }
                 R.id.right_menu_edit ->{
-                    launch.launch(Intent(context, EnvsDetailActivity::class.java).putExtra("id", item.getEId()).putExtra("position", position))
+                    launch.launch(EnvsDetailActivity.updateEnv(requireContext(), item, position))
                 }
                 R.id.right_menu_enable->{
                     if(item.status == 0){
@@ -114,7 +114,9 @@ class EnvsFragment: BaseFragment() {
         initData()
 
         mHomeModel.addEnvLiveData.observe(viewLifecycleOwner){
-            launch.launch(Intent(context, EnvsDetailActivity::class.java))
+            if(it>0){
+                launch.launch(EnvsDetailActivity.addEnv(requireContext()))
+            }
         }
     }
 
@@ -138,9 +140,6 @@ class EnvsFragment: BaseFragment() {
                 if(resp.code == 200){
                     val list = resp.data
                     mAdapter.setNewInstance(list?.toMutableList())
-                    if(refreshLayout.state == RefreshState.Loading){
-                        refreshLayout.finishRefresh()
-                    }
                     if(list.isNullOrEmpty()){
                         showEmpty()
                     }else{
@@ -158,6 +157,7 @@ class EnvsFragment: BaseFragment() {
                 showLoadFailed()
                 Toast.makeText(context, "获取环境变量失败！${e.message}" , Toast.LENGTH_SHORT).show()
             }
+            refreshLayout.finishRefresh()
         }
     }
 
@@ -231,10 +231,10 @@ class EvnsAdapter : BaseQuickAdapter<EnvsData, BaseViewHolder>(R.layout.item_env
 
     override fun convert(holder: BaseViewHolder, item: EnvsData) {
         holder.setText(R.id.tv_name, item.name)
-        holder.setText(R.id.tv_remarks, item.remarks)
-        holder.setText(R.id.tv_value, item.value)
+        holder.setText(R.id.tv_remarks, "备注：${item.remarks}")
+        holder.setText(R.id.tv_value, "值：${item.value}")
         holder.setText(R.id.tv_time, item.getTime())
-        holder.setBackgroundResource(R.id.iv_status, if(item.status == 0) R.drawable.shape_label_status_enable else R.drawable.shape_label_status_enable)
+        holder.setBackgroundResource(R.id.iv_status, if(item.status == 0) R.drawable.shape_label_status_enable else R.drawable.shape_label_status_disable)
         holder.setText(R.id.right_menu_enable, if(item.status == 0) "禁用" else "启用")
         holder.setBackgroundColor(R.id.right_menu_enable, (if(item.status == 0) R.color.gray_pressed else R.color.green ).toColorInt())
     }

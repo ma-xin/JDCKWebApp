@@ -1,4 +1,4 @@
-package com.mxin.jdweb
+package com.mxin.jdweb.ui.web
 
 import android.content.Intent
 import android.os.Build
@@ -8,28 +8,23 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.webkit.*
-import android.widget.ArrayAdapter
-import android.widget.ListAdapter
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.lifecycle.lifecycleScope
+import com.mxin.jdweb.App
+import com.mxin.jdweb.BuildConfig
+import com.mxin.jdweb.R
+import com.mxin.jdweb.common.Constants
 import com.mxin.jdweb.common.SPConstants
 import com.mxin.jdweb.network.OKHttpUtils
-import com.mxin.jdweb.network.ServiceGenerator
-import com.mxin.jdweb.network.api.EnvsApi
 import com.mxin.jdweb.network.data.EnvsData
 import com.mxin.jdweb.ui.ql.EnvsDetailActivity
-import com.mxin.jdweb.utils.TimeUtils
 import com.mxin.jdweb.widget.LoadDialog
-import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
-import java.text.SimpleDateFormat
 
 class WebActivity : AppCompatActivity() {
     private lateinit var webView: WebView
@@ -44,11 +39,9 @@ class WebActivity : AppCompatActivity() {
     private fun initView() {
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-        toolbar.setNavigationIcon(R.drawable.ic_baseline_close_24)
+        toolbar.setNavigationIcon(R.drawable.ic_baseline_power_settings_new_24)
         toolbar.setNavigationOnClickListener {
-            if (webView.canGoBack()) {
-                webView.goBack()
-            }
+            finish()
         }
 
         webView = findViewById(R.id.webView)
@@ -65,7 +58,6 @@ class WebActivity : AppCompatActivity() {
             ): Boolean {
                 return super.onJsAlert(view, url, message, result)
             }
-
         }
 
         webView.webViewClient = object : WebViewClient() {
@@ -108,7 +100,8 @@ class WebActivity : AppCompatActivity() {
 //        webSetting.databaseEnabled = true
 //        webSetting.domStorageEnabled = false
 
-        webView.loadUrl("https://m.jd.com")
+        val url = App.getInstance().spUtil.getString(SPConstants.Web_home_url, Constants.WebView_Home_Url_Default)
+        webView.loadUrl(url)
 
         AlertDialog.Builder(this)
                 .setTitle("温馨提示")
@@ -118,7 +111,6 @@ class WebActivity : AppCompatActivity() {
                 }.create().show()
 
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.web_menu, menu)
@@ -135,7 +127,8 @@ class WebActivity : AppCompatActivity() {
 
     fun getWebCookie(): String {
         CookieManager.getInstance().run {
-            val cookie = getCookie("https://home.m.jd.com/")
+            val cookieUrl = App.getInstance().spUtil.getString(SPConstants.Web_cookie_domain, Constants.WebView_Cookie_Domain_Default)
+            val cookie = getCookie(cookieUrl)
             Log.d(TAG, "cookie : $cookie")
             return cookie
         }
@@ -170,25 +163,23 @@ class WebActivity : AppCompatActivity() {
 
     private val spUtil by lazy { App.getInstance().spUtil }
     private fun submit(cookie: String){
-        val ckServerList = spUtil.getString(SPConstants.CKServer,"GitEE").split("&")
-        AlertDialog.Builder(this)
-            .setTitle("请选择服务器")
-            .setAdapter(ArrayAdapter(this, android.R.layout.simple_list_item_single_choice, ckServerList)){ dialog , which->
-                when(ckServerList[which]){
-                    "GitEE"-> submitGiteeIssueComment(cookie)
-                    else -> submitQLServer(cookie)
-                }
-            }.create().show()
+        val qlDomain = spUtil.getString(SPConstants.QL_domain)
+        if(TextUtils.isEmpty(qlDomain)){
+           submitGiteeIssueComment(cookie)
+        }
+        else{
+            submitQLServer(cookie)
+        }
     }
 
     private fun submitGiteeIssueComment(cookie: String) {
-        val access_token = BuildConfig.gitee_token
-        val owner = BuildConfig.gitee_owner
-        val repo = BuildConfig.gitee_repo
-        val number = BuildConfig.gitee_issue
+        val access_token = spUtil.getString(SPConstants.GitEE_Token, BuildConfig.gitee_token)
+        val owner = spUtil.getString(SPConstants.GitEE_owner, BuildConfig.gitee_owner)
+        val repo = spUtil.getString(SPConstants.GitEE_repo, BuildConfig.gitee_repo)
+        val number = spUtil.getString(SPConstants.GitEE_number, BuildConfig.gitee_issue)
         if(TextUtils.isEmpty(access_token) || TextUtils.isEmpty(owner) || TextUtils.isEmpty(repo) || TextUtils.isEmpty(number)){
             AlertDialog.Builder(this)
-                .setMessage("没有获取到GitEE配置参数，请确认后重试！")
+                .setMessage("没有获取到GitEE配置参数，请首页的设置页码确认！\n如果有公网IP的青龙面板，在首页配置青龙服务器后，直接提交到青龙服务器！")
                 .setPositiveButton("知道了") { dialog, _ ->
                     dialog.dismiss()
                 }.setNegativeButton("查看cookie") { dialog, _ ->
@@ -268,10 +259,7 @@ class WebActivity : AppCompatActivity() {
                 return@forEach
             }
         }
-        startActivity(Intent(this, EnvsDetailActivity::class.java)
-            .putExtra("env", env)
-            .putExtra("searchValue", pt_pin)
-        )
+        startActivity(EnvsDetailActivity.outSubmitEnv(this, env, pt_pin))
     }
 
 }

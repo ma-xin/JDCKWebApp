@@ -1,4 +1,4 @@
-package com.mxin.jdweb;
+package com.mxin.jdweb.ui.web;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
+
+import com.mxin.jdweb.R;
 
 public class TextActivity extends AppCompatActivity {
 

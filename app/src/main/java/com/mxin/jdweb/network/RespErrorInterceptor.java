@@ -2,15 +2,19 @@ package com.mxin.jdweb.network;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.mxin.jdweb.App;
+import com.mxin.jdweb.common.SPConstants;
 import com.mxin.jdweb.network.data.BaseResponse;
 import com.mxin.jdweb.network.error.ResponseErrorListenerImpl;
 import com.mxin.jdweb.ui.ql.QLLoginActivity;
+import com.mxin.jdweb.utils.SPUtils;
 import com.mxin.jdweb.utils.SpannableUtil;
 import com.mxin.jdweb.utils.Utils;
 
@@ -32,19 +36,14 @@ public class RespErrorInterceptor implements Interceptor {
 
     public static final String TAG = "RespErrorInterceptor";
     private static Handler handler = null;
+    //是否弹出重新登录的弹出框
+    private boolean showLoginDialogFlag = false;
 
     @Override
     public Response intercept(Chain chain) throws IOException {
 
         Request request = chain.request();
         Response response = chain.proceed(request);
-
-        if(!response.isSuccessful()){
-            String errorMsg = ResponseErrorListenerImpl.convertStatusCode(response.code(), "访问出现异常");
-            BaseResponse<Object> data = new BaseResponse<>(500, null, errorMsg);
-            return response.newBuilder().body(ResponseBody.create(JSON.toJSONString(data), MediaType.get("application/json; charset=UTF-8"))).build();
-        }
-
         ResponseBody responseBody = response.body();
 
         long contentLength = responseBody.contentLength();
@@ -75,24 +74,32 @@ public class RespErrorInterceptor implements Interceptor {
                 //得到所需的string，开始判断是否异常
                 //***********************do something*****************************
                 try{
-
-                    BaseResponse data = JSON.parseObject(result, BaseResponse.class);
-                    if(data.getCode() == 401){
+                    JSONObject json = JSON.parseObject(result);
+                    if(json.getIntValue("code") == 401){
+                        App.getInstance().clearToken();
                         String message =  "账户已过期，请重新登录！";
                         Activity topAty = Utils.getTopActivity();
-                        if(topAty!=null && topAty.getPackageName().equals(App.getInstance().getPackageName()) && !topAty.isFinishing()) {
+                        if(!showLoginDialogFlag && topAty!=null && topAty.getPackageName().equals(App.getInstance().getPackageName()) && !topAty.isFinishing()) {
                             if(handler==null){
                                 handler = new Handler(Looper.getMainLooper());
                             }
-                            handler.post(() -> new AlertDialog.Builder(topAty)
-                                .setMessage(message)
-                                .setPositiveButton(SpannableUtil.formatForegroundToRed("重新登录"), (dialog, which) -> {
-                                    dialog.dismiss();
-                                    topAty.startActivity(new Intent(topAty, QLLoginActivity.class).putExtra("expire", true)
-                                    );
-                                })
-                                .setNegativeButton(SpannableUtil.formatForegroundToGray("取消"), (dialog, which) -> dialog.dismiss())
-                                .create().show());
+                            handler.post(() -> {
+                                new AlertDialog.Builder(topAty)
+                                        .setMessage(message)
+                                        .setPositiveButton(SpannableUtil.formatForegroundToRed("重新登录"), (dialog, which) -> {
+                                            dialog.dismiss();
+                                            topAty.startActivity(new Intent(topAty, QLLoginActivity.class).putExtra("expire", true)
+                                            );
+                                        })
+                                        .setNegativeButton(SpannableUtil.formatForegroundToGray("取消"), (dialog, which) -> {
+                                            dialog.dismiss();
+                                        })
+                                        .setOnDismissListener(dialog -> {
+                                            showLoginDialogFlag = false;
+                                        })
+                                        .create().show();
+                                showLoginDialogFlag = true;
+                            });
                         }
                     }
 //                    if(response.isSuccessful() && data!=null  && data.isSuccess()){
@@ -131,6 +138,11 @@ public class RespErrorInterceptor implements Interceptor {
                     e.printStackTrace();
                 }
             }
+        }
+        if(!response.isSuccessful()){
+            String errorMsg = ResponseErrorListenerImpl.convertStatusCode(response.code(), response.message(), "访问出现异常");
+            BaseResponse<Object> data = new BaseResponse<>(500, null, errorMsg);
+            return response.newBuilder().body(ResponseBody.create(JSON.toJSONString(data), MediaType.get("application/json; charset=UTF-8"))).build();
         }
         return response;
     }
