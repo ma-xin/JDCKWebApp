@@ -204,7 +204,7 @@ def handleEnv(token, cookie):
                 _value = array[0]['value']
                 _status = array[0]['status']
                 # 2.11.0 字段 _id 改成 id
-                _id = array[0]['_id' if qlVersion<'2.11.0' else 'id']  
+                _id = array[0]['_id' if compareVersion(qlVersion,'2.11.0')=='2.11.0' else 'id']  
                     # 高版本remarks可为null
                 _remarks = array[0].get('remarks','')
                 logger.info(f'id:{_id}')
@@ -243,11 +243,11 @@ def saveEnv(token, id, cookie, remarks, isAdd):
         }
     if not (isAdd):
         # 2.11.0 字段 _id 改成 id
-        payload['_id' if qlVersion<'2.11.0' else 'id'] = id
+        payload['_id' if compareVersion(qlVersion,'2.11.0')=='2.11.0' else 'id'] = id
         resp = requests.put(url, data = payload, headers=headers)
     else:
         #2.10.6以上版本，新增环境变量需要传数组
-        if(qlVersion>='2.10.6'):
+        if(compareVersion(qlVersion,'2.10.6')==qlVersion):
             headers = {
                 "content-type":"application/json",
                 'Authorization':'Bearer {}'.format(token)
@@ -364,6 +364,20 @@ def getQlVersion(token):
         logger.info(error)
         return '0'
 
+def compareVersion(a: str, b: str):
+    '''比较两个版本的大小，需要按.分割后比较各个部分的大小'''
+    lena = len(a.split('.'))  # 获取版本字符串的组成部分
+    lenb = len(b.split('.'))
+    a2 = a + '.0' * (lenb-lena)  # b比a长的时候补全a
+    b2 = b + '.0' * (lena-lenb)
+    for i in range(max(lena, lenb)):  # 对每个部分进行比较，需要转化为整数进行比较
+        if int(a2.split('.')[i]) > int(b2.split('.')[i]):
+            return a
+        elif int(a2.split('.')[i]) < int(b2.split('.')[i]):
+            return b
+        else:						# 比较到最后都相等，则返回第一个版本
+            if i == max(lena, lenb)-1:
+                return a
 
 # =================  main ==========================
       
