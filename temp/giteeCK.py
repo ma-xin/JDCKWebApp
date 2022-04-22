@@ -9,12 +9,16 @@ import logging
 #
 # 改了好几次了，忘记这是第几版， 重头开始记吧！
 #
-#   第A1版
+#   第a2版
 #
+scriptVersion = 'a2'
+
 # 日志模块
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logFormat = logging.Formatter("%(message)s")
+
+
 
 # 日志输出流
 stream = logging.StreamHandler()
@@ -50,7 +54,7 @@ URL_QL_Env_Enable = URL_QL+'envs/enable?t={}'
 #获取青龙版本（高版本）
 URL_QL_VERSION = URL_QL+'system?t={}'
 
-
+logger.info(f'当前脚本版本号：{scriptVersion}')
 
 # 第三方库
 try:
