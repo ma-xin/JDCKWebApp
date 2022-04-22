@@ -8,7 +8,7 @@
 #### 更新
 - 2022-4-21 ~ 2022-4-22：
      -  dev分支已完成 提交CK到青龙，以及青龙的登录、环境变量维护功能，已使用2.11.3版本测试通过。
-     -  新增**青龙脚本** [giteeCK-a2.py](https://gitee.com/maxinDev/jdck-web-app/blob/master/temp/giteeCK-a2.py)   
+     -  新增**青龙脚本** [giteeCK-a3.py](https://gitee.com/maxinDev/jdck-web-app/blob/master/temp/giteeCK-a3.py)   
         添加环境变量【gitee_ck_certificate】，脚本自动读取配置在环境变量中的参数,  
         格式是：gitee私人令牌@giteeIssue浏览器地址@青龙服务器IP',  
         示例：d05279c13bb31234567898092@https://gitee.com/maxinCom/jdcookie-nice/issues/I65I0U@http://127.0.0.1:5700'  
