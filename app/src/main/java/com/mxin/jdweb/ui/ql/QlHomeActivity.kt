@@ -45,7 +45,7 @@ class QlHomeActivity: AppCompatActivity() {
         toolbar.title = "青龙面板"
         val qlVersion = spUtil.getString(SPConstants.QL_version)
         if(!TextUtils.isEmpty(qlVersion)){
-            toolbar.subtitle = "版本：$qlVersion"
+            toolbar.subtitle = "青龙版本：$qlVersion"
         }
         toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_ios_24)
         toolbar.setNavigationOnClickListener {

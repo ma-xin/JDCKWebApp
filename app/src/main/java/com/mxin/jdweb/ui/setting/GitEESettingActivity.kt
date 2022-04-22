@@ -43,7 +43,7 @@ open class GitEESettingActivity : QlServerSettingActivity() {
                     spUtil.put(SPConstants.GitEE_number, pathSegments[3])
                 }
         modelList.add(clientIdMode)
-        contentLayout.addView(initFormEditView(clientIdMode))
+        contentLayout.addView(initFormEditView(clientIdMode, lines = 2))
 
         val accessToken = spUtil.getString(SPConstants.GitEE_Token, BuildConfig.gitee_token)
         val domainMode = FormEditModel("GitEE私人令牌", accessToken)
@@ -51,7 +51,7 @@ open class GitEESettingActivity : QlServerSettingActivity() {
                 spUtil.put(SPConstants.GitEE_Token, it)
             }
         modelList.add(domainMode)
-        contentLayout.addView(initFormEditView(domainMode))
+        contentLayout.addView(initFormEditView(domainMode, lines = 2))
 
     }
 

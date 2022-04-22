@@ -67,6 +67,10 @@ public class ServiceGenerator {
     }
 
 
+    public static OkHttpClient.Builder getOkHttpClient(){
+        return httpClient;
+    }
+
     public static <S> S createService(Class<S> serviceClass) {
         if(retrofit==null){
             String domain = App.getInstance().getSpUtil().getString(SPConstants.QL_domain);

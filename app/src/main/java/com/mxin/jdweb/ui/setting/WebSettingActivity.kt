@@ -28,7 +28,7 @@ open class WebSettingActivity: QlServerSettingActivity() {
                 setResult(Activity.RESULT_OK)
             }
         modelList.add(domainMode)
-        contentLayout.addView(initFormEditView(domainMode))
+        contentLayout.addView(initFormEditView(domainMode, lines = 2))
 
         contentLayout.addView(getSpaceView(20.dp2px(), android.R.color.transparent.toColorInt()))
         val textView = initFormTextView("cookie抓取的域名地址是登录成功后，抓取页面的顶级域名地址，我只知道示例的地址，其他的我不知道！", R.color.org_tag.toColorInt(), 13f)
@@ -39,7 +39,7 @@ open class WebSettingActivity: QlServerSettingActivity() {
         val clientIdMode = FormEditModel("cookie抓取的域名地址,示例: ${Constants.WebView_Cookie_Domain_Default}", cookie_domain)
             .save { spUtil.put(SPConstants.Web_cookie_domain, it) }
         modelList.add(clientIdMode)
-        contentLayout.addView(initFormEditView(clientIdMode))
+        contentLayout.addView(initFormEditView(clientIdMode, lines = 2))
     }
 
 

@@ -91,7 +91,7 @@ class EnvsDetailActivity: QlServerSettingActivity() {
         toolbar.title = "${viewOperatorName?:""}环境变量"
         val qlVersion = spUtil.getString(SPConstants.QL_version)
         if(!TextUtils.isEmpty(qlVersion)){
-            toolbar.subtitle = "版本：$qlVersion"
+            toolbar.subtitle = "青龙版本：$qlVersion"
         }
 
         toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_ios_24)
@@ -275,7 +275,7 @@ class EnvsDetailActivity: QlServerSettingActivity() {
                 if(resp.code == 200){
                     resp.data?.version?.let {
                         versionCode = it
-                        toolbar.subtitle = "版本：$it"
+                        toolbar.subtitle = "青龙版本：$it"
                         return@launch
                     }
                     Toast.makeText(this@EnvsDetailActivity, "获取系统版本号失败！" , Toast.LENGTH_SHORT).show()

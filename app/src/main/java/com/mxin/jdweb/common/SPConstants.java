@@ -2,6 +2,9 @@ package com.mxin.jdweb.common;
 
 public class SPConstants {
 
+	//初始化状态，标识在app启动时，是否需要初始化
+	public static final String initState = "initState";
+
 	//webView 默认打开地址
 	public static final String Web_home_url = "web_home_url";
 

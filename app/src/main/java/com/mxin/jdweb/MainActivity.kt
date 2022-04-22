@@ -8,6 +8,8 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.RecyclerView
+import com.alibaba.fastjson.JSON
+import com.alibaba.fastjson.JSONArray
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.mxin.jdweb.common.Constants
@@ -67,9 +69,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun initMainCardData(): MutableList<MainCardData> {
         val dataList = mutableListOf<MainCardData>()
-        dataList.add(MainCardData(R.drawable.ic_bg_ie_browser, "浏览器CK抓取工具", "默认地址：${spUtil.getString(SPConstants.Web_home_url, Constants.WebView_Home_Url_Default)}"))
-        dataList.add(MainCardData(R.drawable.icon_ql_logo, "青龙面板", "提供青龙面板基础数据维护,没有公网IP的就不要点了,访问不到的！"))
-        dataList.add(MainCardData(R.drawable.ic_baseline_settings_24, "设置", "设置浏览器CK抓取工具的默认地址\n设置Gitee配置参数"))
+        val array = JSON.parseArray(BuildConfig.user_permission);
+        if(array.contains("web")){
+            dataList.add(MainCardData(R.drawable.ic_bg_ie_browser, "浏览器CK抓取工具", "默认地址：${spUtil.getString(SPConstants.Web_home_url, Constants.WebView_Home_Url_Default)}"))
+        }
+        if(array.contains("ql")){
+            dataList.add(MainCardData(R.drawable.icon_ql_logo, "青龙面板", "提供青龙面板基础数据维护,没有公网IP的就不要点了,访问不到的！"))
+        }
+        if(array.contains("setting")){
+            dataList.add(MainCardData(R.drawable.ic_baseline_settings_24, "设置", "设置浏览器CK抓取工具的默认地址\n设置Gitee配置参数"))
+        }
         return dataList
     }
 

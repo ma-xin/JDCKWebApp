@@ -7,9 +7,9 @@ data class TokenData(
     val expiration:Long,
     // 账户登录 127.0.0.1:5700/api/....
     // 应用授权 127.0.0.1:5700/open/....
-    val api:String = "api"
+    var api:String = "api"
 ){
 
-
+    val timestamp = System.currentTimeMillis()
 
 }

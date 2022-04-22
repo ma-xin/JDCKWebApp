@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
 }
+apply from: file('../config.gradle')
 
 android {
     signingConfigs {
@@ -20,19 +21,44 @@ android {
         minSdkVersion 21
         targetSdkVersion 31
         versionCode 2
-        versionName "1.1.0"
+        versionName "1.1.1-alpha01"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders = [APP_NAME: '青龙工具'] // 配置主包的应用名称
 
+
         //gitEE Token令牌
-        buildConfigField "String", "gitee_token", '"xxxxxxxxxxxxx"'
-        //gitEE owner
-        buildConfigField "String", "gitee_owner", '"xxxxx"'
-        //gitEE repo
-        buildConfigField "String", "gitee_repo", '"xxxx"'
-        //gitEE issue number
-        buildConfigField "String", "gitee_issue", '"xxx"'
+        buildConfigField "String", "gitee_token", "${gitee.token}"
+        //1.1.1以上版本，只需要内置gitee的Issue地址就可以了,不需要拆分成三个参数
+        buildConfigField "String", "gitee_issue_url", "${gitee.issue_url}"
+
+        // 青龙 服务器地址
+        buildConfigField "String", "ql_ip", "${qinglong.ip}"
+        // 青龙 登录用户名
+        buildConfigField "String", "ql_username", "${qinglong.username}"
+        // 青龙 登录密码
+        buildConfigField "String", "ql_password", "${qinglong.password}"
+        // 青龙 client_id
+        buildConfigField "String", "ql_client_id", "${qinglong.client_id}"
+        // 青龙 client_secret
+        buildConfigField "String", "ql_client_secret", "${qinglong.client_secret}"
+
+        // WEB 默认加载地址
+        buildConfigField "String", "web_home_url", "${web.home_url}"
+        // WEB 获取指定域名下的cookie
+        buildConfigField "String", "web_cookie_domain", "${web.cookie_domain}"
+
+        //管理员
+//        buildConfigField "String", "user_permission", "${user.admin}"
+        //普通用户
+        buildConfigField "String", "user_permission", "${user.normal}"
+
+        // 已弃用   gitEE owner
+        buildConfigField "String", "gitee_owner", '""'
+        // 已弃用   gitEE repo
+        buildConfigField "String", "gitee_repo", '""'
+        // 已弃用   gitEE issue number
+        buildConfigField "String", "gitee_issue", '""'
     }
 
     buildTypes {
