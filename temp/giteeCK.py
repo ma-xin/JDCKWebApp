@@ -10,7 +10,7 @@ import logging
 # 改了好几次了，忘记这是第几版， 重头开始记吧！
 #
 #   第a2版
-#
+# 
 scriptVersion = 'a2'
 
 # 日志模块
