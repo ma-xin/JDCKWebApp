@@ -14,6 +14,7 @@ import androidx.appcompat.widget.Toolbar
 import com.mxin.jdweb.App
 import com.mxin.jdweb.BuildConfig
 import com.mxin.jdweb.R
+import com.mxin.jdweb.WebModel
 import com.mxin.jdweb.common.Constants
 import com.mxin.jdweb.common.SPConstants
 import com.mxin.jdweb.network.OKHttpUtils
@@ -58,6 +59,14 @@ class WebActivity : AppCompatActivity() {
             ): Boolean {
                 return super.onJsAlert(view, url, message, result)
             }
+
+            override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                if(newProgress>=10){
+                    toolbar.title = view?.title
+                    toolbar.subtitle = view?.url
+                }
+                super.onProgressChanged(view, newProgress)
+            }
         }
 
         webView.webViewClient = object : WebViewClient() {
@@ -91,48 +100,115 @@ class WebActivity : AppCompatActivity() {
 //            }
         }
 
-
         var webSetting = webView.settings
         webSetting.javaScriptEnabled = true
         webSetting.useWideViewPort = true
         webSetting.loadWithOverviewMode = true
+//        webSetting.cacheMode
 //        webSetting.cacheMode =  WebSettings.LOAD_NO_CACHE
 //        webSetting.databaseEnabled = true
 //        webSetting.domStorageEnabled = false
 
         val url = App.getInstance().spUtil.getString(SPConstants.Web_home_url, Constants.WebView_Home_Url_Default)
-        webView.loadUrl(url)
+        when(WebModel.toValue(intent.getStringExtra("model"))){
+            WebModel.Traceless->{
+                CookieManager.getInstance().removeAllCookies{
+                    webView.loadUrl(url)
+                }
+            }
+            else->
+                webView.loadUrl(url)
 
-        AlertDialog.Builder(this)
+        }
+
+        if(spUtil.getBoolean(SPConstants.Web_first_dialog, true)){
+            spUtil.put(SPConstants.Web_first_dialog, false)
+            AlertDialog.Builder(this)
                 .setTitle("温馨提示")
                 .setMessage("登录成功后，请点击右上角的上传图标，上传登录账户的cookie凭证！")
                 .setPositiveButton("知道了") { dialog, _ ->
                     dialog.dismiss()
                 }.create().show()
-
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.web_menu, menu)
         return true
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.item_acion) {
-            handleCookie(getWebCookie())
+        when(item.itemId){
+            R.id.item_acion->  handleCookie(getWebCookie())
+            R.id.item_refresh -> webView.reload()
+            R.id.item_look_cookie -> {
+                startActivity(Intent(this, TextActivity::class.java).putExtra("content", getWebCookie()))
+            }
+            R.id.item_clear_cookie->{
+                CookieManager.getInstance().removeAllCookies{
+                    AlertDialog.Builder(this).setMessage(if(it) "Cookie清除成功！" else "Cookie清除失败！")
+                        .setPositiveButton("确定"){dialog, which->
+                            dialog.dismiss()
+                        }.create().show()
+                }
+            }
+//            R.id.item_cache_cookie->{
+//
+//            }
+//            R.id.item_load_cookie->{
+//
+//            }
         }
         return super.onOptionsItemSelected(item)
     }
 
-    fun getWebCookie(): String {
+    private fun getWebCookie(): String {
         CookieManager.getInstance().run {
             val cookieUrl = App.getInstance().spUtil.getString(SPConstants.Web_cookie_domain, Constants.WebView_Cookie_Domain_Default)
             val cookie = getCookie(cookieUrl)
             Log.d(TAG, "cookie : $cookie")
-            return cookie
+            return cookie?:""
         }
     }
+
+//    private val cookieDao by lazy { AppDataBase.builder().webCookieDao }
+//
+//    fun cacheCookie(url:String, remark:String){
+//        CookieManager.getInstance().run {
+//            val cookie = getCookie(url)
+//            lifecycleScope.launch {
+//                if(cookieDao.get(remark).isNotEmpty()){
+//                    cookieDao.delete(remark)
+//                }
+//                val dateTime = TimeUtils.getNowString()
+//                cookie?.split(";")?.also {
+//                    val modelList = mutableListOf<WebCookieModel>()
+//                    it.forEach {  data->
+//                        val ds = data.split("=")
+//                        if(ds.size==2){
+//                            modelList.add(WebCookieModel(null, url, ds[0], ds[1],"/",remark, dateTime))
+//                        }
+//                    }
+//                    cookieDao.insert(modelList)
+//                }
+//            }
+//        }
+//    }
+//
+//    fun loadCookie(url:String, remark:String){
+//        CookieManager.getInstance().run {
+//            lifecycleScope.launch {
+//                val list = cookieDao.get(remark)
+//                if(list.isNotEmpty()){
+//                    setAcceptCookie(true)
+//                    list.forEach {
+//                        setCookie(url, "${it.name}=${it.value}")
+//                    }
+//                }
+//            }
+//        }
+//    }
+
 
     //获取cookie中的pt_key 和 pt_pin
     private fun handleCookie(cookie: String) {

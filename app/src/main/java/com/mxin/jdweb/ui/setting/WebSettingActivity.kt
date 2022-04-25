@@ -40,6 +40,9 @@ open class WebSettingActivity: QlServerSettingActivity() {
             .save { spUtil.put(SPConstants.Web_cookie_domain, it) }
         modelList.add(clientIdMode)
         contentLayout.addView(initFormEditView(clientIdMode, lines = 2))
+
+
+
     }
 
 

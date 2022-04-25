@@ -11,6 +11,13 @@ public class SPConstants {
 	//webView 抓取cookie的域名
 	public static final String Web_cookie_domain = "web_cookie_domain";
 
+	//webView 模式。 （无痕、正常）
+	public static final String Web_model = "web_model";
+
+	//webView 第一次进入时弹出警示窗口
+	public static final String Web_first_dialog = "web_first_dialog";
+
+
 	//GitEE配置参数
 	public static final String GitEE_Token = "gitEE_token";
 	public static final String GitEE_repo_url = "gitEE_repo_url";

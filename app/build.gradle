@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+//    id 'kotlin-kapt'
 }
 apply from: file('../config.gradle')
 
@@ -26,6 +27,9 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders = [APP_NAME: '青龙工具'] // 配置主包的应用名称
 
+        // 管理员    buildConfigField "String", "user_permission", "${user.admin}"
+        // 普通用户  buildConfigField "String", "user_permission", "${user.normal}"
+        buildConfigField "String", "user_permission", "${user.admin}"
 
         //gitEE Token令牌
         buildConfigField "String", "gitee_token", "${gitee.token}"
@@ -48,10 +52,6 @@ android {
         // WEB 获取指定域名下的cookie
         buildConfigField "String", "web_cookie_domain", "${web.cookie_domain}"
 
-        //管理员
-//        buildConfigField "String", "user_permission", "${user.admin}"
-        //普通用户
-        buildConfigField "String", "user_permission", "${user.normal}"
 
         // 已弃用   gitEE owner
         buildConfigField "String", "gitee_owner", '""'
@@ -125,4 +125,9 @@ dependencies {
     implementation 'com.github.anzaizai:EasySwipeMenuLayout:1.1.4'
     implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0'
     implementation 'com.scwang.smartrefresh:SmartRefreshHeader:1.0.4-7'
+
+    //room
+//    implementation "androidx.room:room-runtime:2.3.0"
+//    kapt "androidx.room:room-compiler:2.3.0"
+//    implementation "androidx.room:room-ktx:2.3.0"
 }
