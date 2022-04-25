@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".WebActivity">
+    tools:context=".ui.web.WebActivity">
 
 
     <androidx.appcompat.widget.Toolbar
@@ -15,7 +15,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:title="JDCookie"
         app:titleTextColor="@color/white"
-        android:background="@color/purple_700"
+        app:subtitleTextAppearance="@style/subtitleStyle"
+        android:background="?attr/colorPrimary"
         />
 
     <WebView

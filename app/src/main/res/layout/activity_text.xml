@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".TextActivity">
+    tools:context=".ui.web.TextActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -13,21 +13,24 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:title="JDCookie"
+        app:titleTextColor="@color/white"
+        app:subtitleTextAppearance="@style/subtitleStyle"
+        android:background="?attr/colorPrimary"
         />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="0dp"
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:textSize="16sp"
-        android:textColor="@android:color/holo_red_light"
-        android:padding="10dp"
-        android:textIsSelectable="true"
-        android:lineSpacingExtra="6dp"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:orientation="vertical"
+        tools:listitem="@layout/item_text"
+        tools:itemCount="3"
         />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

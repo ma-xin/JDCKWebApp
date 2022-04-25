@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.mxin.jdweb.R;
-import com.mxin.jdweb.util.ScreenUtils;
+import com.mxin.jdweb.utils.ScreenUtils;
 
 /**
  * Created by Administrator on 2019/2/18 0018.
