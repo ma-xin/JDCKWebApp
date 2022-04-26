@@ -21,8 +21,8 @@ android {
         applicationId "com.mxin.jdweb"
         minSdkVersion 21
         targetSdkVersion 31
-        versionCode 4
-        versionName "1.1.1-patch.1"
+        versionCode 5
+        versionName "1.1.1-patch.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders = [APP_NAME: '青龙工具'] // 配置主包的应用名称
