@@ -1,11 +1,5 @@
 package com.mxin.jdweb.network;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSON;
@@ -17,32 +11,22 @@ import com.mxin.jdweb.network.data.BaseResponse;
 import com.mxin.jdweb.network.data.LoginData;
 import com.mxin.jdweb.network.data.TokenData;
 import com.mxin.jdweb.network.error.ResponseErrorListenerImpl;
-import com.mxin.jdweb.ui.ql.QLLoginActivity;
-import com.mxin.jdweb.utils.SPUtils;
-import com.mxin.jdweb.utils.SpannableUtil;
-import com.mxin.jdweb.utils.Utils;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.charset.UnsupportedCharsetException;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.LockSupport;
 
-import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import okio.Buffer;
-import okio.BufferedSource;
 
 public class RespErrorInterceptor implements Interceptor {
 
@@ -132,7 +116,7 @@ public class RespErrorInterceptor implements Interceptor {
             Request oldRequest = chain.request();
             String oldToken = oldRequest.header("Authorization");
             TokenData tokenData = App.getInstance().getToken();
-            if(oldToken.contains(tokenData.getToken())){
+            if(oldToken==null || oldToken.equals(tokenData.getToken())){
                 tokenData = getNewToken();
             }
             unlock();
@@ -148,6 +132,7 @@ public class RespErrorInterceptor implements Interceptor {
                         .header("Authorization", tokenData.getToken_type() + " " +tokenData.getToken())
                         .url(newUrlBuild.build())
                         ;
+                response.close();
                 return chain.proceed(newRequest.build());
             }
         }
@@ -162,30 +147,30 @@ public class RespErrorInterceptor implements Interceptor {
 
     private static final Charset UTF8 = Charset.forName("UTF-8");
 
-    private boolean bodyEncoded(Headers headers) {
-        String contentEncoding = headers.get("Content-Encoding");
-        return contentEncoding != null && !contentEncoding.equalsIgnoreCase("identity");
-    }
-
-    static boolean isPlaintext(Buffer buffer) throws EOFException {
-        try {
-            Buffer prefix = new Buffer();
-            long byteCount = buffer.size() < 64 ? buffer.size() : 64;
-            buffer.copyTo(prefix, 0, byteCount);
-            for (int i = 0; i < 16; i++) {
-                if (prefix.exhausted()) {
-                    break;
-                }
-                int codePoint = prefix.readUtf8CodePoint();
-                if (Character.isISOControl(codePoint) && !Character.isWhitespace(codePoint)) {
-                    return false;
-                }
-            }
-            return true;
-        } catch (EOFException e) {
-            return false; // Truncated UTF-8 sequence.
-        }
-    }
+//    private boolean bodyEncoded(Headers headers) {
+//        String contentEncoding = headers.get("Content-Encoding");
+//        return contentEncoding != null && !contentEncoding.equalsIgnoreCase("identity");
+//    }
+//
+//    static boolean isPlaintext(Buffer buffer) throws EOFException {
+//        try {
+//            Buffer prefix = new Buffer();
+//            long byteCount = buffer.size() < 64 ? buffer.size() : 64;
+//            buffer.copyTo(prefix, 0, byteCount);
+//            for (int i = 0; i < 16; i++) {
+//                if (prefix.exhausted()) {
+//                    break;
+//                }
+//                int codePoint = prefix.readUtf8CodePoint();
+//                if (Character.isISOControl(codePoint) && !Character.isWhitespace(codePoint)) {
+//                    return false;
+//                }
+//            }
+//            return true;
+//        } catch (EOFException e) {
+//            return false; // Truncated UTF-8 sequence.
+//        }
+//    }
 
     private boolean isTokenExpired(Response response){
         return response.code() == 401;
