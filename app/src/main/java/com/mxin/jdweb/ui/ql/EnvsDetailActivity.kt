@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
@@ -21,6 +22,7 @@ import com.mxin.jdweb.network.ServiceGenerator
 import com.mxin.jdweb.network.api.EnvsApi
 import com.mxin.jdweb.network.api.SystemApi
 import com.mxin.jdweb.network.data.EnvsData
+import com.mxin.jdweb.utils.SpannableUtil
 import com.mxin.jdweb.utils.kt.positiveBtn
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
@@ -84,14 +86,14 @@ class EnvsDetailActivity: QlServerSettingActivity() {
     override fun initView() {
         viewOperator = intent.getStringExtra("ViewOperator")
         val viewOperatorName = intent.getStringExtra("ViewOperatorName")
-        env = intent.getParcelableExtra("env")?: EnvsData(-1L, "", "", 0, 0F, "","","","")
+        env = intent.getParcelableExtra("env")?: EnvsData(null, "", "", 0, 0F, "","","","")
 
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         toolbar.title = "${viewOperatorName?:""}环境变量"
-        val qlVersion = spUtil.getString(SPConstants.QL_version)
-        if(!TextUtils.isEmpty(qlVersion)){
-            toolbar.subtitle = "青龙版本：$qlVersion"
+        versionCode = spUtil.getString(SPConstants.QL_version)
+        if(!TextUtils.isEmpty(versionCode)){
+            toolbar.subtitle = "青龙版本：$versionCode"
         }
 
         toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_ios_24)
@@ -113,7 +115,7 @@ class EnvsDetailActivity: QlServerSettingActivity() {
                 Toast.makeText(this, "保存失败！", Toast.LENGTH_SHORT).show()
             }
         }
-
+        getQLVersion()
     }
 
     private fun initData(){
@@ -137,7 +139,7 @@ class EnvsDetailActivity: QlServerSettingActivity() {
         else{
             initEnvView(this.env)
         }
-        getQLVersion()
+
     }
 
     private fun initEnvView(env: EnvsData){
@@ -195,19 +197,19 @@ class EnvsDetailActivity: QlServerSettingActivity() {
             showLoadingDialog("正在保存")
             try{
                 val json = JSONObject()
-                json.put("name",env.name)
-                json.put("value",env.value)
-                json.put("remarks",env.remarks)
+                json["name"] = env.name
+                json["value"] = env.value
+                json["remarks"] = env.remarks
 
-                val resp = if(env.getEId()!=-1L){
-                    if(versionCode>="2.11.0"){
-                        json.put("id",env.getEId())
+                val resp = if(env.getEId()!=null){
+                    if(versionCode.compareQLVersion("2.11.0")){
+                        json["id"] = env.getEId()
                     }else{
-                        json.put("_id",env.getEId())
+                        json["_id"] = env.getEId()
                     }
                     ServiceGenerator.createService(EnvsApi::class.java).update(json.toJSONString().toRequestBody("application/json; charset=UTF-8".toMediaType()))
                 }else{
-                    if(versionCode>="2.10.6"){
+                    if(versionCode.compareQLVersion("2.10.6")){
                         val array = JSONArray()
                         array.add(json)
                         ServiceGenerator.createService(EnvsApi::class.java).add(array.toString().toRequestBody("application/json; charset=UTF-8".toMediaType()))
@@ -241,7 +243,7 @@ class EnvsDetailActivity: QlServerSettingActivity() {
                     val list = resp.data
                     if(list?.size ==1 ){
                         val oldEnv = list[0]
-                        env.setEid(oldEnv.getEId())
+                        env.setEid(oldEnv)
                         env.remarks = oldEnv.remarks
                         initEnvView(env)
                     }else{
@@ -267,7 +269,7 @@ class EnvsDetailActivity: QlServerSettingActivity() {
         }
     }
 
-    private var versionCode :String = "0"
+    private var versionCode :String = ""
     private fun getQLVersion(){
         lifecycleScope.launch {
             try{
@@ -276,19 +278,38 @@ class EnvsDetailActivity: QlServerSettingActivity() {
                     resp.data?.version?.let {
                         versionCode = it
                         toolbar.subtitle = "青龙版本：$it"
+                        overrideVersion(context = this@EnvsDetailActivity, it)
                         return@launch
                     }
-                    Toast.makeText(this@EnvsDetailActivity, "获取系统版本号失败！" , Toast.LENGTH_SHORT).show()
-                }else if(!resp.message.isNullOrEmpty()){
-                    Toast.makeText(this@EnvsDetailActivity, resp.message, Toast.LENGTH_SHORT).show()
-                }else{
-                    Toast.makeText(this@EnvsDetailActivity, "获取系统版本号失败！" , Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(this@EnvsDetailActivity, "获取系统版本号失败！" , Toast.LENGTH_SHORT).show()
                 }
+//                else if(!resp.message.isNullOrEmpty()){
+//                    Toast.makeText(this@EnvsDetailActivity, resp.message, Toast.LENGTH_SHORT).show()
+//                }else{
+//                    Toast.makeText(this@EnvsDetailActivity, "获取系统版本号失败！" , Toast.LENGTH_SHORT).show()
+//                }
             }catch (e:Exception){
                 e.printStackTrace()
-                Toast.makeText(this@EnvsDetailActivity, "获取系统版本号失败！${e.message}" , Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this@EnvsDetailActivity, "获取系统版本号失败！${e.message}" , Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun overrideVersion(context: Context, version:String){
+        val cacheQlVersion = spUtil.getString(SPConstants.QL_version)
+        if(!TextUtils.isEmpty(version) && cacheQlVersion!= version ){
+            AlertDialog.Builder(context)
+                .setTitle("检测到青龙版本号")
+                .setMessage("当前缓存的版本号：$cacheQlVersion, 检测系统的版本号：$version\n是否覆盖缓存的版本号？")
+                .setPositiveButton(SpannableUtil.formatForeground("覆盖", Color.RED)){ dialog, _ ->
+                    spUtil.put(SPConstants.QL_version, version)
+                    dialog.dismiss()
+                }
+                .setNegativeButton(SpannableUtil.formatForeground("取消", Color.GRAY)){ dialog, _ ->
+                    dialog.dismiss()
+                }
+        }
+
     }
 
 }

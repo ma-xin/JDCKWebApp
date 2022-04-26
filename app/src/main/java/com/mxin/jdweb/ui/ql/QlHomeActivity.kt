@@ -111,7 +111,7 @@ class QlHomeActivity: AppCompatActivity() {
                             spUtil.put(SPConstants.QL_version, it)
                             mHomeModel.setQLVersion(it)
                         }
-                        else if(!TextUtils.isEmpty(it) && it>"0" && cacheQlVersion != it){
+                        else if(!TextUtils.isEmpty(it) && cacheQlVersion != it){
                             AlertDialog.Builder(this@QlHomeActivity)
                                 .setTitle("检测到青龙版本号")
                                 .setMessage("配置文件中的版本号：$cacheQlVersion, 检测系统的版本号：$it\n是否覆盖配置文件的版本号？")

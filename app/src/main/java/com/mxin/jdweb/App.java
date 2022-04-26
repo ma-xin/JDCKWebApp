@@ -100,6 +100,10 @@ public class App extends Application {
             if(!TextUtils.isEmpty(qlIP) && !qlIP.contains("127.0.0.1")){
                 spUtil.put(SPConstants.QL_domain, qlIP);
             }
+            String qlVersion = BuildConfig.ql_version;
+            if(!TextUtils.isEmpty(qlVersion)){
+                spUtil.put(SPConstants.QL_version, qlVersion);
+            }
             String qlUserName = BuildConfig.ql_username;
             if(!TextUtils.isEmpty(qlUserName)){
                 spUtil.put(SPConstants.QL_login_username, qlUserName);

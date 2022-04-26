@@ -24,7 +24,7 @@ data class EnvsData(
 ) : Parcelable {
     private var showTime :String? = ""
 
-    var _id:Long?=null
+    var _id:String?=null
 
     constructor(parcel: Parcel) : this(
         parcel.readValue(Long::class.java.classLoader) as? Long,
@@ -38,15 +38,16 @@ data class EnvsData(
         parcel.readString()
     ) {
         showTime = parcel.readString()
-        _id = parcel.readValue(Long::class.java.classLoader) as? Long
+        _id = parcel.readString()
     }
 
-    fun getEId():Long{
-        return id ?: _id ?: -1L
+    fun getEId():Any?{
+        return id ?: _id
     }
 
-    fun setEid(id:Long){
-        this.id = id
+    fun setEid(data:EnvsData){
+        this.id = data.id
+        this._id = data._id
     }
 
     fun getTime(): String {
@@ -68,7 +69,7 @@ data class EnvsData(
         parcel.writeString(createdAt)
         parcel.writeString(updatedAt)
         parcel.writeString(showTime)
-        parcel.writeValue(_id)
+        parcel.writeString(_id)
     }
 
     override fun describeContents(): Int {

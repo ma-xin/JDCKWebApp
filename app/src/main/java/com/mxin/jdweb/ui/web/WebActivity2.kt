@@ -276,7 +276,7 @@ class WebActivity2 : AppCompatActivity() {
     }
 
     private fun submitQLServer(cookie:String){
-        val env = EnvsData(-1L, cookie, "", 0, 0f, "JD_COOKIE", "", "","")
+        val env = EnvsData(null, cookie, "", 0, 0f, "JD_COOKIE", "", "","")
         var pt_pin = ""
         env.value?.split(";")?.forEach {
             if(it.startsWith("pt_pin=")){
