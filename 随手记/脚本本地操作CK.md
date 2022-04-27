@@ -11,4 +11,106 @@
 这样就可以了。
 
 
+未写完的测试代码 先放着
+```
+import os
+import logging
+import sys
+import sqlite3
+import datetime
 
+# 日志模块
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logFormat = logging.Formatter("%(message)s")
+
+# 日志输出流
+stream = logging.StreamHandler()
+stream.setFormatter(logFormat)
+logger.addHandler(stream)
+
+def env(key):
+    return os.environ.get(key)
+
+"""
+conn = sqlite3.connect("../db/database.sqlite")
+c = conn.cursor()
+
+cursor = c.execute("SELECT name FROM sqlite_master where type='table' order by name")
+for row in cursor:
+    logger.info(f"value:{row[0]}")
+
+
+col_names=[]
+c.execute('pragma table_info({})'.format('Envs'))
+col_name=c.fetchall()
+col_name=[x[1] for x in col_name]
+col_names.append(col_name)
+logger.info(f"{col_names}")
+
+logger.info("\n ******************************** \n")
+
+
+cursor = c.execute("select * from Envs")
+for row in cursor:
+    logger.info(f"row[0] type: {type(row[0])} ,value : {row[0]}")
+    logger.info(f"row[1] type: {type(row[1])} ,value : {row[1]}")
+    logger.info(f"row[2] type: {type(row[2])} ,value : {row[2]}")
+    logger.info(f"row[3] type: {type(row[3])} ,value : {row[3]}")
+    logger.info(f"row[4] type: {type(row[4])} ,value : {row[4]}")
+    logger.info(f"row[5] type: {type(row[5])} ,value : {row[5]}")
+    logger.info(f"row[6] type: {type(row[6])} ,value : {row[6]}")
+    logger.info(f"row[7] type: {type(row[7])} ,value : {row[7]}")
+    logger.info(f"row[8] type: {type(row[8])} ,value : {row[8]}")
+
+    logger.info("\n ====================== \n")
+
+
+createdAt= "2022-04-22T06:17:46.724Z"
+#id= 13
+name= "JD_COOKIE"
+position= 649999999.875
+remarks= "测试DB文件操作"
+status= 0
+timestamp= "Fri Apr 22 2022 14:17:46 GMT+0800 (中国标准时间)"
+updatedAt= "2022-04-22T09:39:24.945Z"
+value= "pt_pin=12yuop;pt_key=sjfkshafuweiryuihjskdf"
+
+logger.info("\n ******************************** \n")
+
+#['id', 'value', 'timestamp', 'status', 'position', 'name', 'remarks', 'createdAt', 'updatedAt']
+
+c = conn.cursor()
+cursor = c.execute(f"insert into Envs (name,position,remarks,status,timestamp,value,createdAt,updatedAt) values (\"{name}\",{position},\"{remarks}\",{status},\"{timestamp}\",\"{value}\",\"{createdAt}\",\"{updatedAt}\")")
+conn.commit()
+
+logger.info("\n 数据插入完成 \n")
+logger.info("\n ******************************** \n")
+
+"""
+gcc =  env('JD_COOKIE')
+logger.info(f"JD_COOKIE: {gcc}")
+
+"""
+logger.info("\n ******************************** \n")
+
+c = conn.cursor()
+cursor = c.execute("select * from Envs")
+for row in cursor:
+    logger.info(f"row[0] type: {type(row[0])} ,value : {row[0]}")
+    logger.info(f"row[1] type: {type(row[1])} ,value : {row[1]}")
+    logger.info(f"row[2] type: {type(row[2])} ,value : {row[2]}")
+    logger.info(f"row[3] type: {type(row[3])} ,value : {row[3]}")
+    logger.info(f"row[4] type: {type(row[4])} ,value : {row[4]}")
+    logger.info(f"row[5] type: {type(row[5])} ,value : {row[5]}")
+    logger.info(f"row[6] type: {type(row[6])} ,value : {row[6]}")
+    logger.info(f"row[7] type: {type(row[7])} ,value : {row[7]}")
+    logger.info(f"row[8] type: {type(row[8])} ,value : {row[8]}")
+
+    logger.info("\n ====================== \n")
+
+"""
+
+logger.info("\n 修改青龙目录 ql/config/env.sh 还没写\n")
+
+```
