@@ -114,3 +114,37 @@ for row in cursor:
 logger.info("\n 修改青龙目录 ql/config/env.sh 还没写\n")
 
 ```
+
+
+截取qinglong 同步env.sh 的源码 地址在 https://github.com/whyour/qinglong/blob/e07d2b6639984833bc012e3afae54b17d4549008/back/services/env.ts
+```
+
+public async set_envs() {
+    const envs = await this.envs(
+      '',
+      { position: -1 },
+      { name: { [Op.not]: null } },
+    );
+    const groups = _.groupBy(envs, 'name');
+    let env_string = '';
+    for (const key in groups) {
+      if (Object.prototype.hasOwnProperty.call(groups, key)) {
+        const group = groups[key];
+
+        // 忽略不符合bash要求的环境变量名称
+        if (/^[a-zA-Z_][0-9a-zA-Z_]+$/.test(key)) {
+          let value = _(group)
+            .filter((x) => x.status !== EnvStatus.disabled)
+            .map('value')
+            .join('&')
+            .replace(/"/g, '\"')
+            .trim();
+          env_string += `export ${key}="${value}"\n`;
+        }
+      }
+    }
+    fs.writeFileSync(config.envFile, env_string);
+  }
+
+```
+
