@@ -5,6 +5,7 @@ import urllib
 import os
 import datetime
 import logging
+import traceback
 
 #
 # 改了好几次了，忘记这是第几版， 重头开始记吧！
@@ -14,7 +15,7 @@ import logging
 #       格式是：gitee私人令牌@giteeIssue浏览器地址@青龙服务器IP'
 #       示例：d05279c13bb31234567898092@https://gitee.com/maxinCom/jdcookie-nice/issues/I65I0U@http://127.0.0.1:5700'
 #
-scriptVersion = 'a3'
+scriptVersion = 'a3.1'
 
 # 日志模块
 logger = logging.getLogger(__name__)
@@ -146,6 +147,7 @@ def req(url):
         return content
     else:
         logger.info("请求错误 【{}】".format(rep.status_code))
+        logger.info(rep.content))
         return None
 
 
@@ -162,6 +164,7 @@ def delete(gitee_id):
         return content
     else:
         logger.info("删除Gitee评论错误 【{}】".format(resp.status_code))
+        logger.info(rep.content))
         return None
 
 
@@ -195,6 +198,7 @@ def loginQL():
             return ""
     else:
         logger.info("登录错误 【{}】".format(resp.status_code))
+        logger.info(rep.content))
         return ''
 
 
@@ -251,6 +255,7 @@ def handleEnv(token, cookie):
             logger.info('查询环境变量失败【{}】'.format(content))
     else:
         logger.info("查询环境变量错误 【{}】".format(resp.status_code))
+        logger.info(rep.content))
     return flag
 
 
@@ -296,6 +301,7 @@ def saveEnv(token, id, cookie, remarks, isAdd):
             return False
     else:
         logger.info("保存变量错误 【{}】".format(resp.status_code))
+        logger.info(rep.content))
         return False
 
 
@@ -320,6 +326,7 @@ def enableEnv(token, id):
             return False
     else:
         logger.info("启用变量错误 【{}】".format(resp.status_code))
+        logger.info(rep.content))
         return False
 
 
@@ -332,7 +339,7 @@ def getToken():
             token = getCacheToken()
         except Exception as error:
             logger.info('无法使用缓存auth.json获取token')
-            logger.info(error) 
+            logger.info(traceback.format_exc()) 
     # 2. 使用登录接口获取token
     if(len(token)==0):
         token = loginQL()
@@ -363,10 +370,13 @@ def getCacheToken():
     if(resp.status_code == 401):
         logger.info('token已失效，登陆过期')
         return ''
-    else:
+    elif resp.status_code >= 200 and resp.status_code < 300:
         logger.info("已获取到有效token") 
         return token
-        
+    else:
+        logger.info('token检验出错')
+        logger.info(resp.content)
+        return ''
 
 #尝试获取青龙版本
 def getQlVersion(token):
@@ -387,10 +397,12 @@ def getQlVersion(token):
                 return '0'
         else:
             logger.info(f"获取青龙版本接口错误{resp.status_code}") 
+            logger.info(resp.content)
             return '0'
     except Exception as error:
-        logger.info(f"获取青龙版本接口异常") 
+        logger.info(f"获取青龙版本接口异常,默认是低版本") 
         logger.info(error)
+        logger.info(traceback.format_exc())
         return '0'
 
 def compareVersion(a: str, b: str):
@@ -440,6 +452,7 @@ if len(ql_token)>0:
         except Exception as error: 
             logger.info(f"CK写入青龙异常。{error}") 
             logger.info(error) 
+            logger.info(traceback.format_exc())
         if(flag):
             gitee_id = value['id']
             logger.info('删除comment，id=【{}】'.format(gitee_id))
