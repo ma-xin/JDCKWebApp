@@ -15,7 +15,7 @@ import traceback
 #       格式是：gitee私人令牌@giteeIssue浏览器地址@青龙服务器IP'
 #       示例：d05279c13bb31234567898092@https://gitee.com/maxinCom/jdcookie-nice/issues/I65I0U@http://127.0.0.1:5700'
 #
-scriptVersion = 'a3.1'
+scriptVersion = 'a3.2'
 
 # 日志模块
 logger = logging.getLogger(__name__)
