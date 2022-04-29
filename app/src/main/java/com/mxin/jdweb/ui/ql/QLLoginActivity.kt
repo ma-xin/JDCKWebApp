@@ -96,8 +96,18 @@ class QLLoginActivity: BaseActivity() {
             false
         }else{
             //初始化服务器ip
-            ServiceGenerator.reset(qlDomain)
-            true
+            try{
+                ServiceGenerator.reset(qlDomain)
+                true
+            }catch (e:Exception){
+                e.printStackTrace()
+                AlertDialog.Builder(this)
+                    .setMessage("青龙服务器IP格式错误， 请确认后重试？")
+                    .setPositiveButton("确定"){ dialog, _ ->
+                        dialog.dismiss()
+                    }.create().show()
+                false
+            }
         }
     }
 

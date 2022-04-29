@@ -20,6 +20,8 @@ import com.scwang.smartrefresh.layout.api.RefreshHeader;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
+import com.umeng.analytics.MobclickAgent;
+import com.umeng.commonsdk.UMConfigure;
 
 import java.net.URI;
 import java.util.List;
@@ -51,6 +53,7 @@ public class App extends Application {
     private void initEnviron(){
         initGloadLoading();
         initSpData();
+        initUMeng();
     }
 
     public TokenData getToken(){
@@ -148,6 +151,13 @@ public class App extends Application {
                 spUtil.put(SPConstants.Web_cookie_domain, webCookieDomain);
             }
         }
+    }
+
+    private void initUMeng(){
+        UMConfigure.setLogEnabled(BuildConfig.DEBUG);
+        UMConfigure.init(this, "626b8dded024421570d8f089", "Umeng", UMConfigure.DEVICE_TYPE_PHONE, "");
+        // 自动采集选择
+        MobclickAgent.setPageCollectionMode(MobclickAgent.PageMode.AUTO);
     }
 
 
