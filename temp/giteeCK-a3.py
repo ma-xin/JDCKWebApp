@@ -147,7 +147,7 @@ def req(url):
         return content
     else:
         logger.info("请求错误 【{}】".format(rep.status_code))
-        logger.info(rep.content))
+        logger.info(rep.content)
         return None
 
 
@@ -164,7 +164,7 @@ def delete(gitee_id):
         return content
     else:
         logger.info("删除Gitee评论错误 【{}】".format(resp.status_code))
-        logger.info(rep.content))
+        logger.info(rep.content)
         return None
 
 
@@ -198,7 +198,7 @@ def loginQL():
             return ""
     else:
         logger.info("登录错误 【{}】".format(resp.status_code))
-        logger.info(rep.content))
+        logger.info(rep.content)
         return ''
 
 
@@ -255,7 +255,7 @@ def handleEnv(token, cookie):
             logger.info('查询环境变量失败【{}】'.format(content))
     else:
         logger.info("查询环境变量错误 【{}】".format(resp.status_code))
-        logger.info(rep.content))
+        logger.info(rep.content)
     return flag
 
 
@@ -301,7 +301,7 @@ def saveEnv(token, id, cookie, remarks, isAdd):
             return False
     else:
         logger.info("保存变量错误 【{}】".format(resp.status_code))
-        logger.info(rep.content))
+        logger.info(rep.content)
         return False
 
 
@@ -326,7 +326,7 @@ def enableEnv(token, id):
             return False
     else:
         logger.info("启用变量错误 【{}】".format(resp.status_code))
-        logger.info(rep.content))
+        logger.info(rep.content)
         return False
 
 
