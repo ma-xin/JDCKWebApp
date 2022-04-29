@@ -27,6 +27,7 @@ import com.mxin.jdweb.utils.kt.positiveBtn
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.lang.StringBuilder
 
 
 class EnvsDetailActivity: QlServerSettingActivity() {
@@ -243,9 +244,15 @@ class EnvsDetailActivity: QlServerSettingActivity() {
                     val list = resp.data
                     if(list?.size ==1 ){
                         val oldEnv = list[0]
-                        env.setEid(oldEnv)
-                        env.remarks = oldEnv.remarks
-                        initEnvView(env)
+                        //判断搜索是否准确
+                        if(oldEnv.value?.contains(searchValue)==true){
+                            env.setEid(oldEnv)
+                            env.remarks = oldEnv.remarks
+                            syncDiffEnvValue(oldEnv, env, searchValue)
+                            initEnvView(env)
+                        }else{
+                            searchEnvAll(searchValue)
+                        }
                     }else{
                         if(list?.size?:0>0){
                             AlertDialog.Builder(this@EnvsDetailActivity)
@@ -264,6 +271,63 @@ class EnvsDetailActivity: QlServerSettingActivity() {
             }catch (e:Exception){
                 e.printStackTrace()
                 Toast.makeText(this@EnvsDetailActivity, "查询环境变量失败！${e.message}" , Toast.LENGTH_SHORT).show()
+            }
+            dismissLoadingDialog()
+        }
+    }
+
+    //有的变量存在多个CK拼接，需要特殊处理 （ck1&ck2&ck3  ， 此时只修改ck1）
+    private fun syncDiffEnvValue(oldEnv:EnvsData, newEnv:EnvsData, searchValue: String){
+        if(oldEnv.value?.contains("&")==true){
+            val envValues = oldEnv.value?.split("&")
+            val newValues = StringBuilder()
+            envValues?.forEach {
+                if(it.contains(searchValue)){
+                    newValues.append(newEnv.value)
+                }else{
+                    newValues.append(it)
+                }
+                newValues.append("&")
+            }
+            newEnv.value = if(newValues.endsWith("&")) newValues.substring(0,newValues.length-1) else newValues.toString()
+        }
+    }
+
+    //青龙搜索接口有的版本存在问题，需要全部查询出来后手动去匹配
+    private fun searchEnvAll(searchValue:String){
+        lifecycleScope.launch {
+            showLoadingDialog("正在查询全部环境变量")
+            try{
+                val resp = ServiceGenerator.createService(EnvsApi::class.java).list()
+                if(resp.code == 200){
+                    val list = resp.data
+                    val resultList =list?.filter {
+                        it.value?.contains(searchValue)==true
+                    }
+                    if(resultList?.size ==1 ){
+                        val oldEnv = resultList[0]
+                        env.setEid(oldEnv)
+                        env.remarks = oldEnv.remarks
+                        syncDiffEnvValue(oldEnv, env, searchValue)
+                        initEnvView(env)
+                    }else{
+                        if(resultList?.size?:0>0){
+                            AlertDialog.Builder(this@EnvsDetailActivity)
+                                .setMessage("关键字【${searchValue}】查询到${resultList?.size?:0}条，当前更改为新增变量，请自行前往查看是否存在变量重复！")
+                                .setPositiveButton("确定"){dialog,_->
+                                    dialog.dismiss()
+                                }.create().show()
+                        }
+                        initEnvView(env)
+                    }
+                }else if(!resp.message.isNullOrEmpty()){
+                    Toast.makeText(this@EnvsDetailActivity, resp.message, Toast.LENGTH_SHORT).show()
+                }else{
+                    Toast.makeText(this@EnvsDetailActivity, "查询全部环境变量失败！" , Toast.LENGTH_SHORT).show()
+                }
+            }catch (e:Exception){
+                e.printStackTrace()
+                Toast.makeText(this@EnvsDetailActivity, "查询全部环境变量失败！${e.message}" , Toast.LENGTH_SHORT).show()
             }
             dismissLoadingDialog()
         }
