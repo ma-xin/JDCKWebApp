@@ -49,7 +49,8 @@ ext{
 
         "token"         : "", //私人令牌
 
-        "issue_url"     : "https://gitee.com/mxinTest/jdcookie-temp/issues/I23PNU", //issue 浏览器地址：
+        // gitee issue的浏览器地址：          
+        "issue_url"     : "https://gitee.com/mxinTest/jdcookie-temp/issues/I23PNU", 
     ]
 
 
