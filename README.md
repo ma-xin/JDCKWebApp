@@ -34,8 +34,7 @@
             ⑥ 添加APP功能权限，区分管理员（所有功能）和普通用户（没有青龙服务器维护功能）。  
         
         打包配置：    
-            [config.gradle](https://gitee.com/maxinDev/jdck-web-app/blob/master/config.gradle)  中配置打包的内置参数；  
-            [app/build.gradle](https://gitee.com/maxinDev/jdck-web-app/blob/master/app/build.gradle) 中配置APP功能权限，默认管理员。
+            [config.gradle](https://gitee.com/maxinDev/jdck-web-app/blob/master/config.gradle)  中配置打包的参数；  
 
 - 2022-4-21 ~ 2022-4-22：
      -  dev分支已完成 提交CK到青龙，以及青龙的登录、环境变量维护功能，已使用2.11.3版本测试通过。  
