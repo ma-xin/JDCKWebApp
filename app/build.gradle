@@ -32,7 +32,7 @@ android {
 
         // 管理员    buildConfigField "String", "user_permission", "${user.admin}"
         // 普通用户  buildConfigField "String", "user_permission", "${user.normal}"
-        buildConfigField "String", "user_permission", "${user.admin}"
+        buildConfigField "String", "user_permission", "${user.permission}"
 
         //gitEE Token令牌
         buildConfigField "String", "gitee_token", "\"${gitee.token}\""
