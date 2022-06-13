@@ -15,7 +15,7 @@ import traceback
 #       格式是：gitee私人令牌@giteeIssue浏览器地址@青龙服务器IP'
 #       示例：d05279c13bb31234567898092@https://gitee.com/maxinCom/jdcookie-nice/issues/I65I0U@http://127.0.0.1:5700'
 #
-scriptVersion = 'a3.1'
+scriptVersion = 'a3.2'
 
 # 日志模块
 logger = logging.getLogger(__name__)
@@ -147,7 +147,7 @@ def req(url):
         return content
     else:
         logger.info("请求错误 【{}】".format(rep.status_code))
-        logger.info(rep.content))
+        logger.info(rep.content)
         return None
 
 
@@ -164,7 +164,7 @@ def delete(gitee_id):
         return content
     else:
         logger.info("删除Gitee评论错误 【{}】".format(resp.status_code))
-        logger.info(rep.content))
+        logger.info(rep.content)
         return None
 
 
@@ -198,7 +198,7 @@ def loginQL():
             return ""
     else:
         logger.info("登录错误 【{}】".format(resp.status_code))
-        logger.info(rep.content))
+        logger.info(rep.content)
         return ''
 
 
@@ -255,7 +255,7 @@ def handleEnv(token, cookie):
             logger.info('查询环境变量失败【{}】'.format(content))
     else:
         logger.info("查询环境变量错误 【{}】".format(resp.status_code))
-        logger.info(rep.content))
+        logger.info(rep.content)
     return flag
 
 
@@ -301,7 +301,7 @@ def saveEnv(token, id, cookie, remarks, isAdd):
             return False
     else:
         logger.info("保存变量错误 【{}】".format(resp.status_code))
-        logger.info(rep.content))
+        logger.info(rep.content)
         return False
 
 
@@ -326,7 +326,7 @@ def enableEnv(token, id):
             return False
     else:
         logger.info("启用变量错误 【{}】".format(resp.status_code))
-        logger.info(rep.content))
+        logger.info(rep.content)
         return False
 
 

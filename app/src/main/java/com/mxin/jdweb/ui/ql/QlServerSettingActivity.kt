@@ -23,8 +23,6 @@ import com.mxin.jdweb.utils.SpannableUtil
 import com.mxin.jdweb.utils.kt.dp2px
 import com.mxin.jdweb.utils.kt.positiveBtn
 import com.mxin.jdweb.utils.kt.toColorInt
-import okhttp3.HttpUrl.Companion.toHttpUrl
-import java.net.URI
 
 open class QlServerSettingActivity: BaseActivity() {
 
@@ -88,11 +86,7 @@ open class QlServerSettingActivity: BaseActivity() {
 
         val ql_domain = spUtil.getString(SPConstants.QL_domain, ServiceGenerator.domain_default)
         val domainMode = FormEditModel("服务器IP,示例: ${ServiceGenerator.domain_default}", ql_domain)
-            .save {
-                //保存前，先查填写的服务器域名是否正确
-                it?.toHttpUrl()
-                spUtil.put(SPConstants.QL_domain, it)
-            }
+            .save { spUtil.put(SPConstants.QL_domain, it) }
         modelList.add(domainMode)
         contentLayout.addView(initFormEditView(domainMode))
 
