@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-rotate xmlns:android="http://schemas.android.com/apk/res/android"
+                 android:drawable="@drawable/smart_show_loading_img"
+                 android:pivotX="50%"
+                 android:pivotY="50%"
+                  />
+    <!--android:duration="100"-->
+    <!--android:fromDegrees="0.0"-->
+    <!--android:toDegrees="360.0"-->
+    <!--android:interpolator="@android:anim/accelerate_decelerate_interpolator"-->
+    <!--android:repeatMode="restart"-->

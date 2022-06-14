@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">青龙工具</string>
+
+    <string name="ui_str_none" />
+    <string name="ui_loading">正在加载…</string>
+    <string name="ui_load_failed">加载失败，点击重试！</string>
+    <string name="ui_load_failed_no_network">网络无法连接…\n请检查网络后点击重试</string>
+    <string name="ui_empty">这里啥都没有!</string>
+
+</resources>

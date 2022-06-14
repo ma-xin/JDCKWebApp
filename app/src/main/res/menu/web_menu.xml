@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/item_refresh"
+        android:icon="@drawable/ic_baseline_refresh_24"
+        android:title="刷新"
+        app:showAsAction="always"
+        />
+
+    <item android:id="@+id/item_acion"
+        android:icon="@drawable/ic_baseline_cloud_upload_24"
+        android:title="获取cookie"
+        app:showAsAction="always"
+        />
+
+    <item android:id="@+id/item_look_cookie"
+        android:icon="@drawable/ic_cookie"
+        android:title="查看cookie"
+        app:showAsAction="never"
+        />
+
+<!--    <item android:id="@+id/item_cache_cookie"-->
+<!--        android:icon="@drawable/ic_cookie"-->
+<!--        android:title="缓存cookie"-->
+<!--        app:showAsAction="never"-->
+<!--        />-->
+
+<!--    <item android:id="@+id/item_load_cookie"-->
+<!--        android:icon="@drawable/ic_cookie"-->
+<!--        android:title="加载缓存cookie"-->
+<!--        app:showAsAction="never"-->
+<!--        />-->
+
+    <item android:id="@+id/item_clear_cookie"
+        android:icon="@drawable/ic_baseline_clear_all_24"
+        android:title="清空cookie"
+        app:showAsAction="never"
+        />
+</menu>

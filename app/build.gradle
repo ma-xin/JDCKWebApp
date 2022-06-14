@@ -1,0 +1,148 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+//    id 'kotlin-kapt'
+}
+apply from: file('../config.gradle')
+
+android {
+    signingConfigs {
+        release {
+            storeFile file('../keystore.jks')
+            storePassword 'android'
+            keyAlias 'maxin'
+            keyPassword 'android'
+        }
+    }
+    compileSdkVersion 31
+    buildToolsVersion "30.0.2"
+
+    defaultConfig {
+        applicationId "com.mxin.jdweb"
+        minSdkVersion 21
+        targetSdkVersion 31
+        versionCode 4
+        versionName "1.1.1-patch.3"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders = [
+                APP_NAME: '青龙工具',
+                umeng_key: '626b8dded024421570d8f089'
+        ] // 配置主包的应用名称
+
+        // 管理员    buildConfigField "String", "user_permission", "${user.admin}"
+        // 普通用户  buildConfigField "String", "user_permission", "${user.normal}"
+        buildConfigField "String", "user_permission", "${user.permission}"
+
+        //gitEE Token令牌
+        buildConfigField "String", "gitee_token", "\"${gitee.token}\""
+        //1.1.1以上版本，只需要内置gitee的Issue地址就可以了,不需要拆分成三个参数
+        buildConfigField "String", "gitee_issue_url", "\"${gitee.issue_url}\""
+
+        // 青龙 服务器地址
+        buildConfigField "String", "ql_ip", "\"${qinglong.ip}\""
+        // 青龙 服务器版本号
+        buildConfigField "String", "ql_version", "\"${qinglong.version}\""
+        // 青龙 登录用户名
+        buildConfigField "String", "ql_username", "\"${qinglong.username}\""
+        // 青龙 登录密码
+        buildConfigField "String", "ql_password", "\"${qinglong.password}\""
+        // 青龙 client_id
+        buildConfigField "String", "ql_client_id", "\"${qinglong.client_id}\""
+        // 青龙 client_secret
+        buildConfigField "String", "ql_client_secret", "\"${qinglong.client_secret}\""
+
+        // WEB 默认加载地址
+        buildConfigField "String", "web_home_url", "\"${web.home_url}\""
+        // WEB 获取指定域名下的cookie
+        buildConfigField "String", "web_cookie_domain", "\"${web.cookie_domain}\""
+
+
+        // 已弃用   gitEE owner
+        buildConfigField "String", "gitee_owner", '""'
+        // 已弃用   gitEE repo
+        buildConfigField "String", "gitee_repo", '""'
+        // 已弃用   gitEE issue number
+        buildConfigField "String", "gitee_issue", '""'
+    }
+
+    buildTypes {
+
+        debug {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+
+        }
+        userp {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+
+        }
+        // 第一个马甲包
+        majiabaoOne.initWith(buildTypes.release) // 以release的配置来初始化马甲包配置
+        majiabaoOne {
+            applicationIdSuffix ".one" // 修改马甲包的applicationId，马甲包的application将为com.liunian.majiabaotest.majiabaoOne，即在原来的applicationId后加上配置内容
+            manifestPlaceholders = [APP_NAME: 'JDWeb-1'] // 配置马甲包的应用名称
+        }
+
+        // 第二个马甲包
+        majiabaoTwo.initWith(buildTypes.release) // 以release的配置来初始化马甲包配置
+        majiabaoTwo {
+            applicationIdSuffix ".two" // 修改马甲包的applicationId，马甲包的application将为com.liunian.majiabaotest.majiabaoOne，即在原来的applicationId后加上配置内容
+            manifestPlaceholders = [APP_NAME: 'JDWeb-2'] // 配置马甲包的应用名称
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+}
+
+dependencies {
+
+    implementation fileTree(include:['*.jar'], dir:'libs')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3"
+
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'com.google.android.material:material:1.3.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.0'
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    implementation 'com.squareup.okhttp3:okhttp:4.6.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.4.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.8.1'
+    implementation 'com.squareup.retrofit2:converter-gson:2.8.1'
+
+    implementation 'com.wang.avi:library:2.1.3'
+
+    implementation 'com.alibaba:fastjson:1.2.80'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.7'
+    implementation 'com.github.anzaizai:EasySwipeMenuLayout:1.1.4'
+    implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0'
+    implementation 'com.scwang.smartrefresh:SmartRefreshHeader:1.0.4-7'
+
+    // 友盟统计SDK
+    implementation  'com.umeng.umsdk:common:9.4.7'// 必选
+    implementation  'com.umeng.umsdk:asms:1.4.0'// 必选
+    implementation 'com.umeng.umsdk:apm:1.5.2' // 错误分析升级为独立SDK，看crash数据请一定集成，可选
+    //room
+//    implementation "androidx.room:room-runtime:2.3.0"
+//    kapt "androidx.room:room-compiler:2.3.0"
+//    implementation "androidx.room:room-ktx:2.3.0"
+}
