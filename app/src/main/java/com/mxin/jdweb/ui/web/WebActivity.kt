@@ -107,7 +107,7 @@ class WebActivity : AppCompatActivity() {
 //        webSetting.cacheMode
 //        webSetting.cacheMode =  WebSettings.LOAD_NO_CACHE
 //        webSetting.databaseEnabled = true
-//        webSetting.domStorageEnabled = false
+        webSetting.domStorageEnabled = true
 
         val url = App.getInstance().spUtil.getString(SPConstants.Web_home_url, Constants.WebView_Home_Url_Default)
         when(WebModel.toValue(intent.getStringExtra("model"))){
