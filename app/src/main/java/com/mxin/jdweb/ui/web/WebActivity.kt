@@ -107,7 +107,7 @@ class WebActivity : AppCompatActivity() {
 //        webSetting.cacheMode
 //        webSetting.cacheMode =  WebSettings.LOAD_NO_CACHE
 //        webSetting.databaseEnabled = true
-//        webSetting.domStorageEnabled = false
+        webSetting.domStorageEnabled = true
 
         val url = App.getInstance().spUtil.getString(SPConstants.Web_home_url, Constants.WebView_Home_Url_Default)
         when(WebModel.toValue(intent.getStringExtra("model"))){
@@ -327,7 +327,7 @@ class WebActivity : AppCompatActivity() {
     }
 
     private fun submitQLServer(cookie:String){
-        val env = EnvsData(-1L, cookie, "", 0, 0f, "JD_COOKIE", "", "","")
+        val env = EnvsData(null, cookie, "", 0, 0f, "JD_COOKIE", "", "","")
         var pt_pin = ""
         env.value?.split(";")?.forEach {
             if(it.startsWith("pt_pin=")){

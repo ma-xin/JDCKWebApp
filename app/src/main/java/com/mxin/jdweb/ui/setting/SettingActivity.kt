@@ -76,7 +76,7 @@ class SettingActivity : BaseActivity() {
     }
 
     override fun onLoadRetry() {
-        TODO("Not yet implemented")
+
     }
 
 }

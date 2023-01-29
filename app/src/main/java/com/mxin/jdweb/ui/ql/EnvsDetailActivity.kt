@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
@@ -21,10 +22,12 @@ import com.mxin.jdweb.network.ServiceGenerator
 import com.mxin.jdweb.network.api.EnvsApi
 import com.mxin.jdweb.network.api.SystemApi
 import com.mxin.jdweb.network.data.EnvsData
+import com.mxin.jdweb.utils.SpannableUtil
 import com.mxin.jdweb.utils.kt.positiveBtn
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.lang.StringBuilder
 
 
 class EnvsDetailActivity: QlServerSettingActivity() {
@@ -84,14 +87,14 @@ class EnvsDetailActivity: QlServerSettingActivity() {
     override fun initView() {
         viewOperator = intent.getStringExtra("ViewOperator")
         val viewOperatorName = intent.getStringExtra("ViewOperatorName")
-        env = intent.getParcelableExtra("env")?: EnvsData(-1L, "", "", 0, 0F, "","","","")
+        env = intent.getParcelableExtra("env")?: EnvsData(null, "", "", 0, 0F, "","","","")
 
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         toolbar.title = "${viewOperatorName?:""}环境变量"
-        val qlVersion = spUtil.getString(SPConstants.QL_version)
-        if(!TextUtils.isEmpty(qlVersion)){
-            toolbar.subtitle = "青龙版本：$qlVersion"
+        versionCode = spUtil.getString(SPConstants.QL_version)
+        if(!TextUtils.isEmpty(versionCode)){
+            toolbar.subtitle = "青龙版本：$versionCode"
         }
 
         toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_ios_24)
@@ -113,7 +116,7 @@ class EnvsDetailActivity: QlServerSettingActivity() {
                 Toast.makeText(this, "保存失败！", Toast.LENGTH_SHORT).show()
             }
         }
-
+        getQLVersion()
     }
 
     private fun initData(){
@@ -137,7 +140,7 @@ class EnvsDetailActivity: QlServerSettingActivity() {
         else{
             initEnvView(this.env)
         }
-        getQLVersion()
+
     }
 
     private fun initEnvView(env: EnvsData){
@@ -195,19 +198,19 @@ class EnvsDetailActivity: QlServerSettingActivity() {
             showLoadingDialog("正在保存")
             try{
                 val json = JSONObject()
-                json.put("name",env.name)
-                json.put("value",env.value)
-                json.put("remarks",env.remarks)
+                json["name"] = env.name
+                json["value"] = env.value
+                json["remarks"] = env.remarks
 
-                val resp = if(env.getEId()!=-1L){
-                    if(versionCode>="2.11.0"){
-                        json.put("id",env.getEId())
+                val resp = if(env.getEId()!=null){
+                    if(versionCode.compareQLVersion("2.11.0")){
+                        json["id"] = env.getEId()
                     }else{
-                        json.put("_id",env.getEId())
+                        json["_id"] = env.getEId()
                     }
                     ServiceGenerator.createService(EnvsApi::class.java).update(json.toJSONString().toRequestBody("application/json; charset=UTF-8".toMediaType()))
                 }else{
-                    if(versionCode>="2.10.6"){
+                    if(versionCode.compareQLVersion("2.10.6")){
                         val array = JSONArray()
                         array.add(json)
                         ServiceGenerator.createService(EnvsApi::class.java).add(array.toString().toRequestBody("application/json; charset=UTF-8".toMediaType()))
@@ -241,9 +244,15 @@ class EnvsDetailActivity: QlServerSettingActivity() {
                     val list = resp.data
                     if(list?.size ==1 ){
                         val oldEnv = list[0]
-                        env.setEid(oldEnv.getEId())
-                        env.remarks = oldEnv.remarks
-                        initEnvView(env)
+                        //判断搜索是否准确
+                        if(oldEnv.value?.contains(searchValue)==true){
+                            env.setEid(oldEnv)
+                            env.remarks = oldEnv.remarks
+                            syncDiffEnvValue(oldEnv, env, searchValue)
+                            initEnvView(env)
+                        }else{
+                            searchEnvAll(searchValue)
+                        }
                     }else{
                         if(list?.size?:0>0){
                             AlertDialog.Builder(this@EnvsDetailActivity)
@@ -267,7 +276,64 @@ class EnvsDetailActivity: QlServerSettingActivity() {
         }
     }
 
-    private var versionCode :String = "0"
+    //有的变量存在多个CK拼接，需要特殊处理 （ck1&ck2&ck3  ， 此时只修改ck1）
+    private fun syncDiffEnvValue(oldEnv:EnvsData, newEnv:EnvsData, searchValue: String){
+        if(oldEnv.value?.contains("&")==true){
+            val envValues = oldEnv.value?.split("&")
+            val newValues = StringBuilder()
+            envValues?.forEach {
+                if(it.contains(searchValue)){
+                    newValues.append(newEnv.value)
+                }else{
+                    newValues.append(it)
+                }
+                newValues.append("&")
+            }
+            newEnv.value = if(newValues.endsWith("&")) newValues.substring(0,newValues.length-1) else newValues.toString()
+        }
+    }
+
+    //青龙搜索接口有的版本存在问题，需要全部查询出来后手动去匹配
+    private fun searchEnvAll(searchValue:String){
+        lifecycleScope.launch {
+            showLoadingDialog("正在查询全部环境变量")
+            try{
+                val resp = ServiceGenerator.createService(EnvsApi::class.java).list()
+                if(resp.code == 200){
+                    val list = resp.data
+                    val resultList =list?.filter {
+                        it.value?.contains(searchValue)==true
+                    }
+                    if(resultList?.size ==1 ){
+                        val oldEnv = resultList[0]
+                        env.setEid(oldEnv)
+                        env.remarks = oldEnv.remarks
+                        syncDiffEnvValue(oldEnv, env, searchValue)
+                        initEnvView(env)
+                    }else{
+                        if(resultList?.size?:0>0){
+                            AlertDialog.Builder(this@EnvsDetailActivity)
+                                .setMessage("关键字【${searchValue}】查询到${resultList?.size?:0}条，当前更改为新增变量，请自行前往查看是否存在变量重复！")
+                                .setPositiveButton("确定"){dialog,_->
+                                    dialog.dismiss()
+                                }.create().show()
+                        }
+                        initEnvView(env)
+                    }
+                }else if(!resp.message.isNullOrEmpty()){
+                    Toast.makeText(this@EnvsDetailActivity, resp.message, Toast.LENGTH_SHORT).show()
+                }else{
+                    Toast.makeText(this@EnvsDetailActivity, "查询全部环境变量失败！" , Toast.LENGTH_SHORT).show()
+                }
+            }catch (e:Exception){
+                e.printStackTrace()
+                Toast.makeText(this@EnvsDetailActivity, "查询全部环境变量失败！${e.message}" , Toast.LENGTH_SHORT).show()
+            }
+            dismissLoadingDialog()
+        }
+    }
+
+    private var versionCode :String = ""
     private fun getQLVersion(){
         lifecycleScope.launch {
             try{
@@ -276,19 +342,38 @@ class EnvsDetailActivity: QlServerSettingActivity() {
                     resp.data?.version?.let {
                         versionCode = it
                         toolbar.subtitle = "青龙版本：$it"
+                        overrideVersion(context = this@EnvsDetailActivity, it)
                         return@launch
                     }
-                    Toast.makeText(this@EnvsDetailActivity, "获取系统版本号失败！" , Toast.LENGTH_SHORT).show()
-                }else if(!resp.message.isNullOrEmpty()){
-                    Toast.makeText(this@EnvsDetailActivity, resp.message, Toast.LENGTH_SHORT).show()
-                }else{
-                    Toast.makeText(this@EnvsDetailActivity, "获取系统版本号失败！" , Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(this@EnvsDetailActivity, "获取系统版本号失败！" , Toast.LENGTH_SHORT).show()
                 }
+//                else if(!resp.message.isNullOrEmpty()){
+//                    Toast.makeText(this@EnvsDetailActivity, resp.message, Toast.LENGTH_SHORT).show()
+//                }else{
+//                    Toast.makeText(this@EnvsDetailActivity, "获取系统版本号失败！" , Toast.LENGTH_SHORT).show()
+//                }
             }catch (e:Exception){
                 e.printStackTrace()
-                Toast.makeText(this@EnvsDetailActivity, "获取系统版本号失败！${e.message}" , Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this@EnvsDetailActivity, "获取系统版本号失败！${e.message}" , Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun overrideVersion(context: Context, version:String){
+        val cacheQlVersion = spUtil.getString(SPConstants.QL_version)
+        if(!TextUtils.isEmpty(version) && cacheQlVersion!= version ){
+            AlertDialog.Builder(context)
+                .setTitle("检测到青龙版本号")
+                .setMessage("当前缓存的版本号：$cacheQlVersion, 检测系统的版本号：$version\n是否覆盖缓存的版本号？")
+                .setPositiveButton(SpannableUtil.formatForeground("覆盖", Color.RED)){ dialog, _ ->
+                    spUtil.put(SPConstants.QL_version, version)
+                    dialog.dismiss()
+                }
+                .setNegativeButton(SpannableUtil.formatForeground("取消", Color.GRAY)){ dialog, _ ->
+                    dialog.dismiss()
+                }
+        }
+
     }
 
 }

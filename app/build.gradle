@@ -21,36 +21,41 @@ android {
         applicationId "com.mxin.jdweb"
         minSdkVersion 21
         targetSdkVersion 31
-        versionCode 3
-        versionName "1.1.1"
+        versionCode 5
+        versionName "1.1.1-patch.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        manifestPlaceholders = [APP_NAME: '青龙工具'] // 配置主包的应用名称
+        manifestPlaceholders = [
+                APP_NAME: '青龙工具',
+                umeng_key: '626b8dded024421570d8f089'
+        ] // 配置主包的应用名称
 
         // 管理员    buildConfigField "String", "user_permission", "${user.admin}"
         // 普通用户  buildConfigField "String", "user_permission", "${user.normal}"
-        buildConfigField "String", "user_permission", "${user.admin}"
+        buildConfigField "String", "user_permission", "${user.permission}"
 
         //gitEE Token令牌
-        buildConfigField "String", "gitee_token", "${gitee.token}"
+        buildConfigField "String", "gitee_token", "\"${gitee.token}\""
         //1.1.1以上版本，只需要内置gitee的Issue地址就可以了,不需要拆分成三个参数
-        buildConfigField "String", "gitee_issue_url", "${gitee.issue_url}"
+        buildConfigField "String", "gitee_issue_url", "\"${gitee.issue_url}\""
 
         // 青龙 服务器地址
-        buildConfigField "String", "ql_ip", "${qinglong.ip}"
+        buildConfigField "String", "ql_ip", "\"${qinglong.ip}\""
+        // 青龙 服务器版本号
+        buildConfigField "String", "ql_version", "\"${qinglong.version}\""
         // 青龙 登录用户名
-        buildConfigField "String", "ql_username", "${qinglong.username}"
+        buildConfigField "String", "ql_username", "\"${qinglong.username}\""
         // 青龙 登录密码
-        buildConfigField "String", "ql_password", "${qinglong.password}"
+        buildConfigField "String", "ql_password", "\"${qinglong.password}\""
         // 青龙 client_id
-        buildConfigField "String", "ql_client_id", "${qinglong.client_id}"
+        buildConfigField "String", "ql_client_id", "\"${qinglong.client_id}\""
         // 青龙 client_secret
-        buildConfigField "String", "ql_client_secret", "${qinglong.client_secret}"
+        buildConfigField "String", "ql_client_secret", "\"${qinglong.client_secret}\""
 
         // WEB 默认加载地址
-        buildConfigField "String", "web_home_url", "${web.home_url}"
+        buildConfigField "String", "web_home_url", "\"${web.home_url}\""
         // WEB 获取指定域名下的cookie
-        buildConfigField "String", "web_cookie_domain", "${web.cookie_domain}"
+        buildConfigField "String", "web_cookie_domain", "\"${web.cookie_domain}\""
 
 
         // 已弃用   gitEE owner
@@ -73,7 +78,12 @@ android {
             signingConfig signingConfigs.release
 
         }
+        userp {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
 
+        }
         // 第一个马甲包
         majiabaoOne.initWith(buildTypes.release) // 以release的配置来初始化马甲包配置
         majiabaoOne {
@@ -100,6 +110,7 @@ android {
 
 dependencies {
 
+    implementation fileTree(include:['*.jar'], dir:'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3"
 
@@ -126,6 +137,10 @@ dependencies {
     implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0'
     implementation 'com.scwang.smartrefresh:SmartRefreshHeader:1.0.4-7'
 
+    // 友盟统计SDK
+    implementation  'com.umeng.umsdk:common:9.4.7'// 必选
+    implementation  'com.umeng.umsdk:asms:1.4.0'// 必选
+    implementation 'com.umeng.umsdk:apm:1.5.2' // 错误分析升级为独立SDK，看crash数据请一定集成，可选
     //room
 //    implementation "androidx.room:room-runtime:2.3.0"
 //    kapt "androidx.room:room-compiler:2.3.0"
